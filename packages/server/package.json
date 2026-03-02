@@ -1,0 +1,50 @@
+{
+  "name": "@payproof/server",
+  "version": "0.1.0",
+  "description": "Merchant-side SDK for Payproof x402+HTLC payment verification and settlement",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./next": {
+      "import": "./dist/next.js",
+      "types": "./dist/next.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@payproof/contracts": "workspace:*",
+    "@x402/core": "^2.5.0",
+    "@x402/evm": "^2.5.0",
+    "viem": "^2.46.3"
+  },
+  "optionalDependencies": {
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4"
+  },
+  "peerDependencies": {
+    "next": ">=14",
+    "@x402/next": "^2.5.0"
+  },
+  "peerDependenciesMeta": {
+    "next": { "optional": true },
+    "@x402/next": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "next": "16.1.6",
+    "@x402/next": "^2.5.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "payproof",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter marketplace dev",
+    "clean": "pnpm -r clean",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit/",
+    "test:evm": "vitest run tests/evm/",
+    "test:solana": "vitest run tests/solana/",
+    "test:facilitator": "vitest run tests/facilitator/",
+    "test:e2e": "vitest run tests/e2e/"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5",
+    "vitest": "^2.1.0"
+  }
+}
