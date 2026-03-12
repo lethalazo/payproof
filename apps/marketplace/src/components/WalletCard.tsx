@@ -6,7 +6,7 @@ interface WalletCardProps {
   balance: string;
   symbol: string;
   explorer: string;
-  accent: "blue" | "purple" | "orange";
+  accent: "blue" | "purple";
 }
 
 const LOW_BALANCE_THRESHOLD = 0.01;
@@ -20,10 +20,6 @@ const ACCENT_CLASSES: Record<string, { border: string; dot: string }> = {
     border: "border-purple-500/30 bg-purple-950/20",
     dot: "bg-purple-400",
   },
-  orange: {
-    border: "border-orange-500/30 bg-orange-950/20",
-    dot: "bg-orange-400",
-  },
 };
 
 const FAUCET_LINKS: Record<string, { url: string; label: string }> = {
@@ -32,10 +28,6 @@ const FAUCET_LINKS: Record<string, { url: string; label: string }> = {
     label: "Circle Faucet",
   },
   "Arc Testnet": {
-    url: "https://faucet.circle.com/",
-    label: "Circle Faucet",
-  },
-  "Solana Devnet": {
     url: "https://faucet.circle.com/",
     label: "Circle Faucet",
   },

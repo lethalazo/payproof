@@ -74,19 +74,9 @@ Payproof builds ON Circle's stack. We use USDC as the payment token, Arc as the 
 - **Institutional backing**: Circle's credibility and regulatory compliance
 - **EVM compatible**: Existing Solidity contracts deploy directly
 
-### Arc vs Solana
-
-| | Arc | Solana |
-|---|---|---|
-| **Gas token** | USDC (native) | SOL (volatile) |
-| **Maturity** | Testnet | Live mainnet with DeFi ecosystem |
-| **Transaction speed** | Sub-second | ~400ms |
-| **Ecosystem** | Emerging | Mature — DeFi, NFTs, DePIN |
-| **Agent UX** | Simpler — one token for everything | Requires SOL management alongside USDC |
-
 ### Payproof's Position
 
-Multi-chain from day one. Arc for institutional/stablecoin use cases where USDC-native gas simplifies agent operations. Solana for access to the broader DeFi ecosystem and existing liquidity. The same HTLC protocol works on both — same state machine, same game theory, same cryptographic guarantees.
+Arc is the primary chain for Payproof's direct scheme. USDC-native gas eliminates the need for a separate volatile token, simplifying agent operations and making micropayments practical. The same HTLC protocol is designed to extend to additional EVM chains — same state machine, same game theory, same cryptographic guarantees.
 
 ## Payproof's Unique Edge
 
@@ -96,7 +86,7 @@ Multi-chain from day one. Arc for institutional/stablecoin use cases where USDC-
 
 3. **Non-custodial, no trusted facilitator**: For the direct scheme, funds are locked in on-chain escrow. No third party holds or routes payments.
 
-4. **Multi-chain from day one**: Same protocol on EVM (Arc) and Solana. Same developer experience, same security model.
+4. **Multi-chain EVM support**: Same protocol across EVM chains. Same developer experience, same security model.
 
 5. **x402 compatible**: Not trying to replace the standard — extending it. Merchants and agents that already use x402 can adopt Payproof's direct scheme incrementally.
 

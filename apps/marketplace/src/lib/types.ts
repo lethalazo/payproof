@@ -15,7 +15,7 @@ export interface AgentEvent {
 
 export interface TransactionRecord {
   id: string;
-  chain: "base-sepolia" | "arc-testnet" | "solana";
+  chain: "base-sepolia" | "arc-testnet";
   type: "x402-payment" | "x402-direct" | "transfer";
   amount: string;
   description: string;

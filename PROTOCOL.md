@@ -1,7 +1,7 @@
 # Payproof Protocol v1: Atomic Data-for-Payment via HTLC
 
 > The canonical, chain-agnostic protocol specification.
-> EVM and Solana contracts are implementations of this spec.
+> EVM contracts are an implementation of this spec.
 
 ## 1. Core Insight
 
@@ -169,7 +169,7 @@ The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestam
 
 ### SHA-256 Hashlocks (Cross-Chain)
 
-SHA-256 is used (not keccak256) for cross-chain compatibility between EVM and Solana.
+SHA-256 is used (not keccak256) for cross-chain compatibility.
 
 - **Hashlock:** `SHA-256(preimage)` -- HTLC commitment
 - **dataHash:** `SHA-256(ciphertext_bytes)` -- data commitment
@@ -256,9 +256,8 @@ Any conforming implementation MUST satisfy:
 | Chain | Contract | Language | Size | Address |
 |-------|----------|----------|------|---------|
 | EVM (Arc Testnet) | `HTLC.sol` | Solidity | ~102 lines | Deployed per `HTLC_CONTRACT_ADDRESS` env |
-| Solana (Devnet) | `lib.rs` | Anchor/Rust | ~495 lines | Deployed per `HTLC_SOLANA_PROGRAM_ID` env |
 
-Both implementations pass the conformance checklist above. The EVM contract uses `IERC20.transferFrom` for escrow; the Solana program uses SPL Token CPIs with PDA-derived escrow accounts.
+The EVM implementation passes the conformance checklist above and uses `IERC20.transferFrom` for escrow.
 
 ### Registry (EVM only)
 

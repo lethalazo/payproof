@@ -19,9 +19,6 @@ const server = createPayproofServer({
   merchantEvmAddress: "0xYourMerchantAddress",
   merchantEvmPrivateKey: process.env.MERCHANT_PRIVATE_KEY!,
   htlcContractAddress: "0xHTLCContractAddress" as `0x${string}`,
-  // Optional: Solana support
-  merchantSolanaPrivateKey: process.env.MERCHANT_SOLANA_PRIVATE_KEY,
-  htlcSolanaProgramId: process.env.HTLC_SOLANA_PROGRAM_ID,
   // Optional: treasury for disputes
   treasuryAddress: process.env.TREASURY_ADDRESS,
 });
@@ -66,13 +63,6 @@ interface PayproofServerConfig {
   merchantEvmPrivateKey: string;    // Signs HTLC claims on EVM
   htlcContractAddress: `0x${string}`;  // HTLC contract on Arc
 
-  // Optional — Solana support
-  merchantSolAddress?: string;      // Solana payment address
-  merchantSolanaPrivateKey?: string; // Signs claims on Solana
-  htlcSolanaProgramId?: string;     // Anchor program ID
-  solanaUsdcMint?: string;          // USDC mint (defaults to devnet)
-  solanaRpcUrl?: string;            // RPC URL (defaults to devnet)
-
   // Optional — hosted facilitator for exact scheme
   hostedFacilitatorUrl?: string;    // Defaults to "https://x402.org/facilitator"
 
@@ -110,7 +100,6 @@ server.multiChainAccepts("$0.01");
 // Returns: [
 //   { scheme: "exact", network: "eip155:84532", payTo: "...", price: "$0.01", ... },
 //   { scheme: "direct", network: "eip155:5042002", payTo: "...", price: "$0.01", ... },
-//   { scheme: "direct", network: "solana:devnet", payTo: "...", price: "$0.01", ... },
 // ]
 ```
 
@@ -130,10 +119,6 @@ import { createPayproofClient } from "@payproof/client";
 const client = createPayproofClient({
   evmPrivateKey: process.env.AGENT_PRIVATE_KEY!,
   htlcContractAddress: "0xHTLCContractAddress" as `0x${string}`,
-  // Optional: Solana support
-  solanaPrivateKey: process.env.AGENT_SOLANA_PRIVATE_KEY,
-  htlcSolanaProgramId: process.env.HTLC_SOLANA_PROGRAM_ID,
-  solanaUsdcMint: process.env.SOLANA_USDC_MINT,
 });
 ```
 
@@ -153,7 +138,6 @@ const data = await response.json(); // plaintext data
 ```typescript
 // Prefer a specific chain
 client.setPreferredNetwork("eip155:5042002");  // Arc
-client.setPreferredNetwork("solana:devnet");    // Solana
 client.setPreferredNetwork("eip155:84532");     // Base Sepolia (exact scheme)
 client.setPreferredNetwork(null);               // Auto-select (prefers direct)
 ```
@@ -169,12 +153,8 @@ const lockedOnly = await client.lockStore.getAll("locked");
 const lock = await client.lockStore.get("0xLockId...");
 // lock.encryptedPayload contains the EncryptedPayload for retry
 
-// Refund an expired lock (Arc)
+// Refund an expired lock
 const txHash = await client.htlcClient.refundLock("0xLockId..." as `0x${string}`);
-
-// Refund an expired lock (Solana)
-const lockIdBuf = Buffer.from("lockIdHex", "hex");
-const signature = await client.htlcSolanaClient!.refundLockSolana(lockIdBuf);
 ```
 
 ### Wallet Operations
@@ -183,14 +163,12 @@ const signature = await client.htlcSolanaClient!.refundLockSolana(lockIdBuf);
 // Check balances
 const baseBalance = await client.evmWallet.getBaseUSDCBalance();
 const arcBalance = await client.arcWallet.getArcUSDCBalance();
-const solBalance = await client.solanaWallet?.getUSDCBalance();
 
 // Transfer USDC on Arc
 const txHash = await client.arcWallet.transferArcUSDC("0xRecipient", "1.00");
 
 // Get addresses
 const evmAddress = client.evmWallet.account.address;    // Same for Base + Arc
-const solAddress = client.solanaWallet?.getAddress();
 ```
 
 ### Client Configuration Reference
@@ -200,12 +178,6 @@ interface PayproofClientConfig {
   // Required
   evmPrivateKey: string;              // Agent's EVM private key (hex)
   htlcContractAddress: `0x${string}`; // HTLC contract on Arc
-
-  // Optional — Solana support
-  solanaPrivateKey?: string;          // Agent's Solana keypair (base58)
-  htlcSolanaProgramId?: string;      // Anchor program ID
-  solanaUsdcMint?: string;           // USDC mint (defaults to devnet)
-  solanaRpcUrl?: string;             // RPC URL (defaults to devnet)
 
   // Optional — pluggable store
   lockStore?: LockStore;             // Defaults to MemoryLockStore
@@ -220,11 +192,10 @@ The reference app includes 8 tools for AI agent integration:
 
 | Tool | Purpose |
 |------|---------|
-| `check_wallet_balance` | Query USDC balance across all 3 chains |
+| `check_wallet_balance` | Query USDC balance across all chains |
 | `list_available_apis` | Browse marketplace catalog with prices |
 | `fetch_paid_data` | Purchase data from a paywalled endpoint |
 | `check_arc_balance` | Arc-specific balance check |
-| `check_solana_balance` | Solana-specific balance check |
 | `transfer_usdc_arc` | Direct USDC transfer on Arc |
 | `check_pending_payments` | Inspect on-chain status of all HTLC locks |
 | `refund_expired_lock` | Recover funds from expired locks |
@@ -283,9 +254,8 @@ Prefer the chain with the most funds.`;
 
 For transient failures:
 1. **402 retry**: Automatic — x402 client retries with payment
-2. **Lock confirmation**: SDK polls with 3s intervals, up to 4 min (EVM) / 3 min (Solana)
+2. **Lock confirmation**: SDK polls with 3s intervals, up to 4 minutes
 3. **Claim after confirmation**: Background polling with 3s intervals, up to 3 minutes
-4. **Solana confirmation**: Falls back to `getSignatureStatuses` on timeout
 
 ## Examples
 
@@ -311,17 +281,15 @@ console.log(weather.data.regions[0].temperature); // { current: 72.5, unit: "F",
 const client = createPayproofClient({
   evmPrivateKey: process.env.AGENT_KEY!,
   htlcContractAddress: "0x..." as `0x${string}`,
-  solanaPrivateKey: process.env.AGENT_SOL_KEY!,
-  htlcSolanaProgramId: "GigEY98avKBtVEtJpqytTdSfEaCnULZNuE5Nyx98R7Yh",
 });
 
 // Check which chain has the most funds
+const baseBalance = await client.evmWallet.getBaseUSDCBalance();
 const arcBalance = await client.arcWallet.getArcUSDCBalance();
-const solBalance = await client.solanaWallet?.getUSDCBalance() ?? "0";
 
-const bestChain = parseFloat(arcBalance) > parseFloat(solBalance)
+const bestChain = parseFloat(arcBalance) > parseFloat(baseBalance)
   ? "eip155:5042002"
-  : "solana:devnet";
+  : "eip155:84532";
 
 client.setPreferredNetwork(bestChain);
 const response = await client.getFetchWithPayment()("https://api.example.com/markets");

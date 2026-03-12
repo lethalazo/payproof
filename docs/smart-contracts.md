@@ -2,9 +2,9 @@
 
 ## Overview
 
-Payproof uses two HTLC implementations — one for EVM (Solidity) and one for Solana (Anchor/Rust) — plus a `PayproofRegistry` contract for version management on EVM.
+Payproof uses an EVM HTLC implementation (Solidity) plus a `PayproofRegistry` contract for version management on EVM.
 
-Both HTLC contracts implement the same 7-state machine with identical game-theoretic guarantees. SHA-256 is used for hashlocks (not keccak256) to ensure cross-chain compatibility.
+The HTLC contract implements a 7-state machine with well-defined game-theoretic guarantees. SHA-256 is used for hashlocks (not keccak256).
 
 ## State Machine
 
@@ -132,7 +132,7 @@ struct Lock {
 - **No reentrancy**: Checks-effects-interactions pattern — state is updated before token transfers
 - **No admin functions**: HTLC has no owner, no pause, no upgrade on the core contract
 - **Immutable treasury**: Set in constructor, cannot be changed
-- **SHA-256 for cross-chain**: Uses `sha256()` precompile, not `keccak256()`, for Solana compatibility
+- **SHA-256**: Uses `sha256()` precompile, not `keccak256()`
 
 ## PayproofRegistry.sol
 
@@ -155,95 +155,6 @@ const REGISTRY_ABI = parseAbi([
 - **Owner-controlled**: Only the owner can register or deactivate versions
 - **One per chain**: Deployed on each EVM chain where Payproof operates
 - **Client compatibility**: Clients check `extra.protocolVersion` in the 402 response against the registry
-
-## Solana Program: htlc_solana
-
-**Location**: `packages/contracts/programs/htlc-solana/src/lib.rs` (495 lines)
-**Program ID**: `GigEY98avKBtVEtJpqytTdSfEaCnULZNuE5Nyx98R7Yh`
-
-### Account Layout
-
-#### ProgramConfig (72 bytes)
-
-| Field | Size | Offset |
-|-------|------|--------|
-| Discriminator | 8 | 0 |
-| `admin` | 32 | 8 |
-| `treasury` | 32 | 40 |
-
-PDA: `seeds = [b"config"]`
-
-#### LockAccount (258 bytes)
-
-| Field | Size | Offset | Description |
-|-------|------|--------|-------------|
-| Discriminator | 8 | 0 | Anchor discriminator |
-| `sender` | 32 | 8 | Agent pubkey |
-| `recipient` | 32 | 40 | Merchant pubkey |
-| `mint` | 32 | 72 | SPL token mint |
-| `amount` | 8 | 104 | Token amount (u64) |
-| `hashlock` | 32 | 112 | SHA-256(preimage) |
-| `timelock` | 8 | 144 | Unix timestamp (i64) |
-| `state` | 1 | 152 | LockState enum |
-| `lock_id` | 32 | 153 | Unique lock identifier |
-| `bump` | 1 | 185 | Escrow PDA bump |
-| `data_deadline` | 8 | 186 | Confirmation deadline (i64) |
-| `data_hash` | 32 | 194 | SHA-256(ciphertext) |
-| `receipt_hash` | 32 | 226 | Agent's confirmation hash |
-
-PDA: `seeds = [b"lock", lock_id]`
-
-### PDAs
-
-| PDA | Seeds | Purpose |
-|-----|-------|---------|
-| `lock_pda` | `["lock", lock_id]` | Lock account data |
-| `escrow_pda` | `["escrow", lock_id]` | SPL token escrow (holds USDC) |
-| `config` | `["config"]` | Program configuration (admin + treasury) |
-
-### Instructions
-
-| Instruction | Caller | State Transition | Notes |
-|-------------|--------|-----------------|-------|
-| `initialize_config` | Admin | — | Sets admin + treasury pubkeys |
-| `lock` | Agent | Empty → Locked | Transfers SPL tokens to escrow PDA |
-| `post_data_hash` | Merchant | Locked → DataPosted | Sets data_hash, data_deadline |
-| `confirm_receipt` | Agent | DataPosted → Confirmed | receipt_hash must match data_hash |
-| `claim` | Anyone | Confirmed → Claimed | Verifies preimage, transfers from escrow to recipient |
-| `refund` | Anyone | Locked → Refunded | Requires timelock expired, transfers back to sender |
-| `send_to_treasury` | Anyone | DataPosted → Treasury | Requires data_deadline expired |
-
-### Error Codes
-
-| Code | Name | Message |
-|------|------|---------|
-| 6000 | `NotLocked` | Lock is not in Locked state |
-| 6001 | `NotDataPosted` | Lock is not in DataPosted state |
-| 6002 | `NotConfirmed` | Lock is not in Confirmed state |
-| 6003 | `Expired` | Timelock has expired |
-| 6004 | `NotExpired` | Timelock has not expired yet |
-| 6005 | `DeadlinePassed` | Data deadline has passed |
-| 6006 | `DeadlineNotPassed` | Data deadline has not passed yet |
-| 6007 | `BadPreimage` | Invalid preimage |
-| 6008 | `HashMismatch` | Receipt hash does not match data hash |
-| 6009 | `NotRecipient` | Caller is not the recipient |
-| 6010 | `NotSender` | Caller is not the sender |
-
-### Hashing Difference
-
-Solana uses `anchor_lang::solana_program::hash::hashv` (SHA-256) for preimage verification, matching the EVM contract's `sha256()` precompile. This ensures the same preimage works on both chains.
-
-## Cross-Chain Compatibility
-
-| Property | EVM (HTLC.sol) | Solana (htlc_solana) |
-|----------|-----------------|----------------------|
-| Hash function | SHA-256 (precompile) | SHA-256 (hashv) |
-| State enum | 7 states (0-6) | 7 states (identical) |
-| Game theory | Identical | Identical |
-| Confirmation window | 120 seconds | 120 seconds |
-| Token transfer | ERC-20 `transferFrom`/`transfer` | SPL token CPI `transfer` |
-| Lock ID | `bytes32` | `[u8; 32]` |
-| Escrow model | Contract holds tokens | PDA-owned token account |
 
 ## ABI Reference
 
@@ -311,20 +222,3 @@ cast send $REGISTRY_ADDRESS "registerVersion(address)" $HTLC_ADDRESS \
   --private-key $DEPLOYER_PRIVATE_KEY
 ```
 
-### htlc_solana (Solana Devnet)
-
-```bash
-# Build (use cargo build-sbf, NOT anchor build — see deployment.md)
-cargo build-sbf --manifest-path programs/htlc-solana/Cargo.toml
-
-# Deploy
-solana program deploy target/deploy/htlc_solana.so --program-id <KEYPAIR> --url devnet
-
-# Initialize ProgramConfig with treasury
-# (via client script or Anchor test)
-```
-
-After deployment:
-1. Set `HTLC_SOLANA_PROGRAM_ID` in your environment
-2. Run `initialize_config` instruction with the treasury pubkey
-3. Update `Anchor.toml` with the program ID

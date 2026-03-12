@@ -17,11 +17,7 @@ export function getPayproofServer(): PayproofServer {
     _server = createPayproofServer({
       merchantEvmAddress: merchantAddress,
       merchantEvmPrivateKey: requireEnv("MERCHANT_PRIVATE_KEY", "set the merchant private key in .env"),
-      merchantSolAddress: process.env.MERCHANT_SOL_ADDRESS,
-      merchantSolanaPrivateKey: process.env.MERCHANT_SOLANA_PRIVATE_KEY,
       htlcContractAddress: requireEnv("HTLC_CONTRACT_ADDRESS", "deploy contracts/HTLC.sol and set the address in .env") as `0x${string}`,
-      htlcSolanaProgramId: process.env.HTLC_SOLANA_PROGRAM_ID,
-      solanaUsdcMint: process.env.SOLANA_USDC_MINT,
       treasuryAddress,
     });
   }

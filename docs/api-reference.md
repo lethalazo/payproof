@@ -43,15 +43,14 @@ data: {"type":"done","content":"Agent completed","timestamp":1740700030000}
 
 ### `GET /api/wallet`
 
-Returns agent USDC balances across all three chains.
+Returns agent USDC balances across all supported chains.
 
 **Response**:
 ```json
 {
   "balances": {
     "baseSepolia": { "address": "0x...", "balance": "10.500000" },
-    "arcTestnet": { "address": "0x...", "balance": "5.250000" },
-    "solanaDevnet": { "address": "...", "balance": "3.000000" }
+    "arcTestnet": { "address": "0x...", "balance": "5.250000" }
   }
 }
 ```
@@ -66,12 +65,10 @@ Returns merchant wallet balances and accumulated revenue.
 ```json
 {
   "balances": {
-    "arcTestnet": { "address": "0x...", "balance": "12.340000" },
-    "solanaDevnet": { "address": "...", "balance": "2.100000" }
+    "arcTestnet": { "address": "0x...", "balance": "12.340000" }
   },
   "revenue": {
-    "Arc Testnet": 0.061,
-    "Solana Devnet": 0.011
+    "Arc Testnet": 0.061
   }
 }
 ```
@@ -261,11 +258,11 @@ Returns AI-powered market sentiment analysis.
 
 ## Agent Tools
 
-The AI agent has access to 8 tools. Each tool returns a JSON string.
+The AI agent has access to 7 tools. Each tool returns a JSON string.
 
 ### `check_wallet_balance`
 
-Check USDC balance across all three chains.
+Check USDC balance across all supported chains.
 
 **Input**: None
 
@@ -287,14 +284,6 @@ Check USDC balance across all three chains.
       "usdc_balance": "5.250000",
       "payment_scheme": "direct",
       "note": "USDC is native gas token — no separate gas needed"
-    },
-    {
-      "chain": "Solana Devnet",
-      "network": "solana:devnet",
-      "address": "...",
-      "usdc_balance": "3.000000",
-      "payment_scheme": "direct",
-      "note": "Needs SOL for gas"
     }
   ]
 }
@@ -320,7 +309,7 @@ Purchase and fetch data from a paywalled API. Handles the full atomic payment fl
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `endpoint` | `"weather" \| "markets" \| "sentiment"` | Yes | Which API to call |
-| `preferred_network` | `"eip155:5042002" \| "solana:devnet" \| "eip155:84532"` | No | Chain to pay on |
+| `preferred_network` | `"eip155:5042002" \| "eip155:84532"` | No | Chain to pay on |
 
 **Output** (success):
 ```json
@@ -367,16 +356,6 @@ Check USDC balance on Arc Testnet specifically.
 
 ---
 
-### `check_solana_balance`
-
-Check USDC and SOL balance on Solana Devnet.
-
-**Input**: None
-
-**Output**: `{ chain, address, usdc_balance, network, explorer }`
-
----
-
 ### `transfer_usdc_arc`
 
 Direct USDC transfer on Arc Testnet.
@@ -415,7 +394,7 @@ Inspect on-chain status of all HTLC locks created this session.
 }
 ```
 
-**On-chain state values**: `Empty`, `Locked`, `DataPosted`, `Confirmed`, `Claimed`, `Refunded`, `Treasury`, `NotFound` (Solana account missing), or `error: <message>`.
+**On-chain state values**: `Empty`, `Locked`, `DataPosted`, `Confirmed`, `Claimed`, `Refunded`, `Treasury`, `NotFound`, or `error: <message>`.
 
 ---
 
@@ -427,12 +406,11 @@ Refund an expired HTLC lock to recover funds.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `lock_id` | `string` | Yes | Lock ID (hex) |
-| `network` | `"eip155:5042002" \| "solana:devnet"` | Yes | Network of the lock |
+| `network` | `"eip155:5042002" \| "eip155:84532"` | Yes | Network of the lock |
 
 **Pre-checks** (returns error if):
 - Lock state is not `Locked` (already claimed, refunded, or in another state)
 - Timelock has not expired yet (returns seconds remaining)
-- Lock account not found (Solana)
 
 **Output** (success):
 ```json

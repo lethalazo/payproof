@@ -5,7 +5,6 @@
 Atomic data-for-payment protocol implemented and running on live testnets:
 
 - **Arc Testnet**: Full 7-state HTLC with AES-256-GCM encryption, USDC payments
-- **Solana Devnet**: Same protocol via Anchor program, SPL token transfers
 - **Base Sepolia**: x402 exact scheme compatibility via hosted facilitator
 - **SDK packages**: `@payproof/client`, `@payproof/server`, `@payproof/contracts` extracted from prototype
 - **Reference app**: Full marketplace with Claude agent, 3 paywalled APIs, multi-chain wallet management
@@ -19,7 +18,6 @@ Apply Payproof's encryption + confirmation protocol on top of x402's exact schem
 ### Mainnet Deployments
 
 - **Arc mainnet** (when available): Deploy audited HTLC + Registry contracts
-- **Solana mainnet**: Deploy audited Anchor program
 
 ### Onboarding Tools
 
@@ -76,7 +74,7 @@ Agents pay with any token, automatic swap to merchant's preferred token:
 
 ### Cross-Chain Atomic Swaps
 
-Agent on Solana pays merchant on Arc — trustless cross-chain data-for-payment:
+Agent on one EVM chain pays merchant on another — trustless cross-chain data-for-payment:
 - Shared hashlock across chains
 - Relay network for cross-chain event propagation
 - Same game-theoretic guarantees as single-chain protocol

@@ -20,17 +20,6 @@ Full atomic data-for-payment protocol:
 
 **Advantage**: USDC is the native gas token on Arc — agents only need one token.
 
-### Solana Devnet — `direct`
-
-**Network**: `solana:devnet` | **Token**: USDC (SPL) | **Gas**: SOL | **Program**: htlc_solana
-
-Same atomic protocol as Arc, implemented as an Anchor program:
-- PDA-based escrow accounts hold USDC
-- Same 7-state machine and game theory
-- SHA-256 hashlock compatible with EVM
-
-**Advantage**: Mature ecosystem, sub-second finality.
-
 ### Base Sepolia — `exact` (compatibility)
 
 **Network**: `eip155:84532` | **Token**: USDC | **Gas**: ETH
@@ -69,21 +58,6 @@ When an agent requests a paywalled endpoint without payment, the server returns:
       }
     },
     {
-      "scheme": "direct",
-      "network": "solana:devnet",
-      "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
-      "amount": "1000",
-      "payTo": "MerchantSolanaAddress",
-      "maxTimeoutSeconds": 60,
-      "extra": {
-        "transferType": "htlc",
-        "hashlock": "0xSHA256OfPreimage...",
-        "htlcContract": "ProgramId",
-        "timelockSeconds": 300,
-        "protocolVersion": 1
-      }
-    },
-    {
       "scheme": "exact",
       "network": "eip155:84532",
       "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
@@ -99,7 +73,7 @@ When an agent requests a paywalled endpoint without payment, the server returns:
 
 The client SDK:
 1. Selects the best payment option (prefers `direct` scheme, respects `setPreferredNetwork()`)
-2. Approves the HTLC contract to spend USDC (EVM) or prepares token accounts (Solana)
+2. Approves the HTLC contract to spend USDC
 3. Calls `lock()` with a randomly generated `lockId`, the server-provided `hashlock`, and `timelock = now + 300s`
 4. Tracks the lock in `LockStore` with status `"locked"`
 
@@ -159,7 +133,7 @@ The `handleEncryptedResponse` function in `x402.ts`:
 3. Decode `encryptedBlob` from base64 → ciphertext bytes
 4. Compute `receiptHash = SHA-256(ciphertext_bytes)`
 5. Call `confirmReceipt(lockId, receiptHash)` on-chain
-6. Poll for `Claimed` event via `watchForClaim()` (up to 4 min EVM / 3 min Solana)
+6. Poll for `Claimed` event via `watchForClaim()` (up to 4 min)
 7. Extract preimage from `Claimed` event
 8. Decrypt: `AES-256-GCM.decrypt(ciphertext, nonce, authTag, preimage)`
 9. Return new `Response` with plaintext body
@@ -242,4 +216,4 @@ const routes = {
 };
 ```
 
-`multiChainAccepts()` generates three payment options (exact/Base, direct/Arc, direct/Solana) for a single price point.
+`multiChainAccepts()` generates two payment options (exact/Base, direct/Arc) for a single price point.
