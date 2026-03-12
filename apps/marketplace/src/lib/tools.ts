@@ -198,11 +198,9 @@ export async function executeTool(
     case "fetch_paid_data": {
       const endpoint = input.endpoint as string;
       const url = `${APP_URL}/api/provider/${endpoint}`;
-      const priceMap: Record<string, string> = {
-        weather: "0.001000",
-        markets: "0.010000",
-        sentiment: "0.050000",
-      };
+      const priceMap: Record<string, string> = Object.fromEntries(
+        MARKETPLACE_APIS.map((api) => [api.endpoint, api.priceNum.toFixed(6)])
+      );
       const preferredNetwork = (input.preferred_network as string) || null;
       const requestTimestamp = Date.now();
       try {
@@ -333,7 +331,20 @@ export async function executeTool(
               else if (data.state === LockState.Refunded) await lockStore.updateStatus(lock.lockId, "refunded");
             } else if (lock.network === "solana:devnet" && solanaWallet) {
               const connection = solanaWallet.connection;
-              const htlcProgramId = process.env.HTLC_SOLANA_PROGRAM_ID || "HTLC111111111111111111111111111111111111111";
+              const htlcProgramId = process.env.HTLC_SOLANA_PROGRAM_ID;
+              if (!htlcProgramId) {
+                onChainState = "error: HTLC_SOLANA_PROGRAM_ID not configured";
+                return {
+                  lockId: lock.lockId,
+                  network: lock.network,
+                  amount: formatUnits(BigInt(lock.amount), 6) + " USDC",
+                  localStatus: lock.status,
+                  onChainState,
+                  refundable: false,
+                  timelockExpiry: new Date(lock.timelock * 1000).toISOString(),
+                  timelockExpired: lock.timelock <= now,
+                };
+              }
               const lockPDA = lock.lockPDA
                 ? new PublicKey(lock.lockPDA)
                 : deriveLockPDA(Buffer.from(lock.lockId, "hex"), new PublicKey(htlcProgramId))[0];

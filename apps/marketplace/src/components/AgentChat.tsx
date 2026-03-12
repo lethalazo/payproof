@@ -107,7 +107,9 @@ function ApiCards({ data }: { data: Record<string, unknown> }) {
             </span>
           </div>
           <div className="text-gray-500 text-[11px] leading-tight">
-            {String(api.description).slice(0, 60)}...
+            {String(api.description).length > 60
+              ? `${String(api.description).slice(0, 60)}...`
+              : String(api.description)}
           </div>
         </div>
       ))}
@@ -143,9 +145,7 @@ function renderToolResult(event: AgentEvent) {
 
   // Balance cards
   if (
-    (event.toolName === "check_wallet_balance" ||
-      event.toolName === "check_arc_balance" ||
-      event.toolName === "check_solana_balance") &&
+    event.toolName === "check_wallet_balance" &&
     (parsed.usdc_balance || parsed.chains)
   ) {
     return <BalanceCard data={parsed} />;

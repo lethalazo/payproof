@@ -161,7 +161,7 @@ Abstract fields that every implementation MUST store per lock:
 | Timelock | Default Duration | Set When | Purpose |
 |----------|-----------------|----------|---------|
 | `timelock` | 300s (5 min) | `lock()` called | Overall deadline -- agent can refund if merchant never responds |
-| `dataDeadline` | timelock + 120s | `postDataHash()` called | Confirmation window -- agent must confirm or funds go to treasury |
+| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window -- agent must confirm or funds go to treasury |
 
 The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestamp when the merchant posts the data hash.
 
@@ -256,7 +256,7 @@ Any conforming implementation MUST satisfy:
 | Chain | Contract | Language | Size | Address |
 |-------|----------|----------|------|---------|
 | EVM (Arc Testnet) | `HTLC.sol` | Solidity | ~102 lines | Deployed per `HTLC_CONTRACT_ADDRESS` env |
-| Solana (Devnet) | `lib.rs` | Anchor/Rust | ~200 lines | Deployed per `HTLC_SOLANA_PROGRAM_ID` env |
+| Solana (Devnet) | `lib.rs` | Anchor/Rust | ~495 lines | Deployed per `HTLC_SOLANA_PROGRAM_ID` env |
 
 Both implementations pass the conformance checklist above. The EVM contract uses `IERC20.transferFrom` for escrow; the Solana program uses SPL Token CPIs with PDA-derived escrow accounts.
 

@@ -91,6 +91,9 @@ async function anchorDiscriminator(name: string): Promise<Buffer> {
  *   3. postDataHash() — merchant posts SHA-256 of encrypted data on-chain
  *   4. claimAfterConfirmation() — watches for agent's confirmReceipt, then claims with preimage
  */
+/** Minimum seconds remaining on timelock for server to safely complete the flow. */
+const MIN_TIMELOCK_SAFETY_MARGIN = 120;
+
 export class DirectTransferFacilitator {
   private config: DirectTransferFacilitatorConfig;
   private claimedLocks = new Set<string>();
@@ -403,25 +406,32 @@ export class DirectTransferFacilitator {
       return;
     }
 
+    // Optimistic locking: add BEFORE claim attempt to prevent concurrent duplicates (TOCTOU fix)
     if (this.claimedLocks.has(lockId)) return;
+    this.claimedLocks.add(lockId);
 
     const preimageHex = `0x${preimage}` as `0x${string}`;
     const merchantClient = this.getMerchantWalletClient();
 
-    const txHash = await merchantClient.writeContract({
-      address: this.config.htlcContractAddress,
-      abi: HTLC_ABI,
-      functionName: "claim",
-      args: [lockId, preimageHex],
-    });
+    let txHash: `0x${string}`;
+    try {
+      txHash = await merchantClient.writeContract({
+        address: this.config.htlcContractAddress,
+        abi: HTLC_ABI,
+        functionName: "claim",
+        args: [lockId, preimageHex],
+      });
+    } catch (err) {
+      this.claimedLocks.delete(lockId); // rollback on failure
+      throw err;
+    }
 
     const receipt = await this.arcPublicClient.waitForTransactionReceipt({ hash: txHash });
     if (receipt.status !== "success") {
+      this.claimedLocks.delete(lockId); // rollback on revert
       console.error("[facilitator] Claim tx reverted:", txHash);
       return;
     }
-
-    this.claimedLocks.add(lockId);
 
     const amountRaw = await this.arcPublicClient.readContract({
       address: this.config.htlcContractAddress,
@@ -495,7 +505,9 @@ export class DirectTransferFacilitator {
       return;
     }
 
+    // Optimistic locking: add BEFORE claim attempt to prevent concurrent duplicates (TOCTOU fix)
     if (this.claimedLocks.has(lockIdHex)) return;
+    this.claimedLocks.add(lockIdHex);
 
     const preimageBytes = Buffer.from(preimage, "hex");
 
@@ -560,6 +572,7 @@ export class DirectTransferFacilitator {
           "confirmed",
         );
         if (confirmation.value.err) {
+          this.claimedLocks.delete(lockIdHex); // rollback on failure
           console.error("[facilitator] Solana claim failed:", confirmation.value.err);
           return;
         }
@@ -578,12 +591,14 @@ export class DirectTransferFacilitator {
           claimSignature = signature;
           break;
         }
+        this.claimedLocks.delete(lockIdHex); // rollback on failure
         console.error("[facilitator] Solana claim confirmation failed:", confirmErr);
         return;
       }
     }
 
     if (!claimSignature) {
+      this.claimedLocks.delete(lockIdHex); // rollback — all retries exhausted
       console.error("[facilitator] Solana claim: all retry attempts expired");
       return;
     }
@@ -669,6 +684,15 @@ export class DirectTransferFacilitator {
         isValid: false,
         invalidReason: "expired",
         invalidMessage: "Lock timelock has already expired",
+      };
+    }
+
+    // Ensure enough time remains for the full flow (encrypt + postDataHash + confirm + claim)
+    if (timelock - now < BigInt(MIN_TIMELOCK_SAFETY_MARGIN)) {
+      return {
+        isValid: false,
+        invalidReason: "insufficient_time",
+        invalidMessage: `Lock expires in ${timelock - now}s — need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
       };
     }
 
@@ -765,6 +789,15 @@ export class DirectTransferFacilitator {
         isValid: false,
         invalidReason: "expired",
         invalidMessage: "Lock timelock has already expired",
+      };
+    }
+
+    // Ensure enough time remains for the full flow (encrypt + postDataHash + confirm + claim)
+    if (timelock - now < BigInt(MIN_TIMELOCK_SAFETY_MARGIN)) {
+      return {
+        isValid: false,
+        invalidReason: "insufficient_time",
+        invalidMessage: `Lock expires in ${timelock - now}s — need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
       };
     }
 

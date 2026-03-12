@@ -68,6 +68,11 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
               await lockStore.updateStatus(lock.lockId, "refunded");
               continue;
             }
+            if (data.state === LockState.Treasury) {
+              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized — not recoverable
+              continue;
+            }
+            // DataPosted or Confirmed — flow is in progress, skip refund
             if (data.state !== LockState.Locked) continue;
 
             const txHash = await htlcClient.refundLock(lock.lockId as `0x${string}`);
@@ -79,7 +84,7 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
             const [lockPDA] = deriveLockPDA(lockIdBuf, programId);
 
             const accountInfo = await solanaWallet.connection.getAccountInfo(lockPDA);
-            if (!accountInfo || accountInfo.data.length < 186) continue;
+            if (!accountInfo || accountInfo.data.length < 258) continue;
 
             const state = accountInfo.data[152];
 
@@ -91,6 +96,11 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
               await lockStore.updateStatus(lock.lockId, "refunded");
               continue;
             }
+            if (state === LockState.Treasury) {
+              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized — not recoverable
+              continue;
+            }
+            // DataPosted or Confirmed — flow is in progress, skip refund
             if (state !== LockState.Locked) continue;
 
             const signature = await htlcSolanaClient.refundLockSolana(lockIdBuf);

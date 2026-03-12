@@ -8,6 +8,9 @@ import TransactionList from "./TransactionList";
 import MarketplaceGrid from "./MarketplaceGrid";
 import MerchantDashboard from "./MerchantDashboard";
 import BudgetTracker from "./BudgetTracker";
+import HowItWorks from "./HowItWorks";
+import ProtocolSteps from "./ProtocolSteps";
+import { TOTAL_COST } from "@/lib/marketplace";
 
 interface WalletResponse {
   address: string;
@@ -144,7 +147,7 @@ export default function Dashboard() {
   };
 
   const budgetNum = parseFloat(budget);
-  const budgetWarning = !isNaN(budgetNum) && budgetNum < 0.061;
+  const budgetWarning = !isNaN(budgetNum) && budgetNum < TOTAL_COST;
 
   const accentForChain = (name: string) => {
     if (name.includes("Base")) return "blue";
@@ -164,6 +167,7 @@ export default function Dashboard() {
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-500">
+            <HowItWorks />
             <span className="px-2 py-1 bg-blue-900/30 rounded text-blue-400 border border-blue-800/30">
               Base Sepolia
             </span>
@@ -256,7 +260,7 @@ export default function Dashboard() {
 
           {budgetWarning && (
             <p className="text-xs text-amber-400 mt-2">
-              Budget is below $0.061 — may not be enough to buy all three data
+              Budget is below ${TOTAL_COST.toFixed(3)} — may not be enough to buy all three data
               sources.
             </p>
           )}
@@ -286,6 +290,9 @@ export default function Dashboard() {
           <MarketplaceGrid events={events} onRequest={handleMarketplaceRequest} />
         ) : (
           <>
+            {/* Protocol Steps Visualizer */}
+            <ProtocolSteps events={events} />
+
             {/* Budget Tracker */}
             <BudgetTracker events={events} budget={budget} />
 

@@ -22,7 +22,10 @@ export class MemoryLedgerStore implements LedgerStore {
   getRevenueSummary(): Record<string, number> {
     const summary: Record<string, number> = {};
     for (const tx of this.transactions) {
-      summary[tx.chain] = (summary[tx.chain] || 0) + parseFloat(tx.amount);
+      const amount = parseFloat(tx.amount);
+      if (!isNaN(amount)) {
+        summary[tx.chain] = (summary[tx.chain] || 0) + amount;
+      }
     }
     return summary;
   }

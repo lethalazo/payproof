@@ -116,7 +116,7 @@ Tests `DirectTransferFacilitator` with real on-chain state:
 
 Full encrypted payment flow:
 
-1. Spawns a Next.js dev server on port 3001 with `PAYPROOF_ENCRYPTED_FLOW=true`
+1. Spawns a Next.js dev server on port 3001
 2. Makes unauthenticated request → 402
 3. Parses payment requirements from 402 response
 4. Agent locks USDC on Arc with extracted hashlock

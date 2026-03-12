@@ -2,11 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { toolDefinitions, executeTool } from "./tools";
 import type { AgentEvent } from "./types";
 
-const anthropic = new Anthropic({
-  defaultHeaders: {
-    "anthropic-beta": "oauth-2025-04-20",
-  },
-});
+const anthropic = new Anthropic();
 
 const SYSTEM_PROMPT = `You are an autonomous AI research agent with access to a USDC cryptocurrency wallet on three blockchain networks:
 
@@ -45,8 +41,18 @@ export async function* runAgent(input: AgentInput): AsyncGenerator<AgentEvent> {
   ];
 
   let continueLoop = true;
+  let iterations = 0;
+  const MAX_ITERATIONS = 25;
 
   while (continueLoop) {
+    if (++iterations > MAX_ITERATIONS) {
+      yield {
+        type: "error",
+        content: `Agent reached maximum iteration limit (${MAX_ITERATIONS}). Stopping to prevent runaway spending.`,
+        timestamp: Date.now(),
+      };
+      break;
+    }
     let response: Anthropic.Message;
     try {
       response = await anthropic.messages.create({
@@ -132,8 +138,15 @@ export async function* runAgent(input: AgentInput): AsyncGenerator<AgentEvent> {
       }
 
       messages.push({ role: "user", content: toolResults });
+    } else if (response.stop_reason === "max_tokens") {
+      yield {
+        type: "text",
+        content: "Agent reached output limit — response was truncated.",
+        timestamp: Date.now(),
+      };
+      continueLoop = false;
     } else {
-      // stop_reason is "end_turn" or "max_tokens" — agent is done
+      // stop_reason is "end_turn" — agent is done
       continueLoop = false;
     }
   }
