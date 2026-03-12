@@ -10,8 +10,6 @@ payproof/
 │   ├── contracts/    @payproof/contracts   Shared types, ABIs, chain configs
 │   ├── server/       @payproof/server      Merchant SDK — payment gating + settlement
 │   └── client/       @payproof/client      Agent SDK — payment + decryption
-├── programs/
-│   └── htlc-solana/                        Solana HTLC program (Anchor/Rust)
 └── apps/
     └── marketplace/                        Reference Next.js app
 ```
@@ -34,16 +32,12 @@ The SDK packages are published independently. The marketplace app demonstrates t
 | `packages/server/src/crypto/encryption.ts` | Server-side encrypt() + computeSHA256() using Web Crypto |
 | `packages/server/src/context/request-context.ts` | AbortSignal propagation for client disconnect detection |
 | `packages/client/src/client.ts` | createPayproofClient(): wires wallets + HTLC clients + x402 wrapper |
-| `packages/client/src/x402/x402-direct-client.ts` | DirectTransferClient: creates HTLC locks for payment (EVM + Solana) |
+| `packages/client/src/x402/x402-direct-client.ts` | DirectTransferClient: creates HTLC locks for payment |
 | `packages/client/src/x402/x402.ts` | createX402ClientWrapper(): x402 integration, encrypted response pipeline |
 | `packages/client/src/evm/htlc-client.ts` | createHtlcClient(): lock, confirmReceipt, watchForClaim, refund on Arc EVM |
 | `packages/client/src/evm/arc.ts` | createArcWallet(): USDC balance + transfers on Arc Testnet |
-| `packages/client/src/solana/htlc-solana-client.ts` | createHtlcSolanaClient(): lockFunds, confirmReceipt, watchForClaim, refund on Solana |
-| `packages/client/src/solana/solana.ts` | createSolanaWallet(): USDC + SOL balance on Solana Devnet |
 | `packages/client/src/stores/lock-store.ts` | LockStore interface + MemoryLockStore (pending lock tracking) |
 | `packages/client/src/crypto/encryption.ts` | Client-side decrypt() + computeSHA256() using Web Crypto |
-| `programs/htlc-solana/src/lib.rs` | Anchor program: 7 instructions, 7 states, 258-byte LockAccount |
-| `packages/contracts/programs/htlc-solana/src/lib.rs` | Reference copy of Solana program (same as programs/htlc-solana) |
 
 ## Package Architecture
 
@@ -80,12 +74,10 @@ The agent-side SDK. Handles wallet management, HTLC locking, encrypted response 
 |--------|-------------|------|
 | `client.ts` | `createPayproofClient()`, `PayproofClient` | Factory — creates client with wallets, HTLC clients, x402 wrapper |
 | `x402/x402.ts` | `createX402ClientWrapper()` | x402 integration, scheme selection, encrypted response pipeline |
-| `x402/x402-direct-client.ts` | `DirectTransferClient` | Creates HTLC locks for payment (EVM + Solana) |
+| `x402/x402-direct-client.ts` | `DirectTransferClient` | Creates HTLC locks for payment |
 | `evm/htlc-client.ts` | `createHtlcClient()`, `generateLockId()` | Arc HTLC operations: lock, confirmReceipt, watchForClaim, refund |
 | `evm/wallet.ts` | `createEvmWallet()` | Base Sepolia wallet (balance, approvals) |
 | `evm/arc.ts` | `createArcWallet()` | Arc Testnet wallet (USDC balance, transfers) |
-| `solana/htlc-solana-client.ts` | `createHtlcSolanaClient()`, `deriveLockPDA()` | Solana HTLC operations |
-| `solana/solana.ts` | `createSolanaWallet()` | Solana wallet (USDC + SOL balance) |
 | `stores/lock-store.ts` | `LockStore`, `MemoryLockStore` | Tracks pending HTLC locks + encrypted payloads |
 | `crypto/encryption.ts` | `decrypt()`, `computeSHA256()` | AES-256-GCM decryption using on-chain preimage |
 
@@ -225,7 +217,7 @@ Step   Action                          Package               Module
          (timelock expired)
 ```
 
-Both EVM and Solana contracts implement identical state transitions. The `CONFIRMATION_WINDOW` is 120 seconds on both chains.
+The EVM contract implements the full 7-state machine. The `CONFIRMATION_WINDOW` is 120 seconds.
 
 ## Key Design Decisions
 
@@ -237,10 +229,9 @@ HTLCs provide deterministic resolution without a trusted third party. The state 
 
 The breakthrough insight: using the HTLC preimage as the AES encryption key creates **mathematical atomicity**. The merchant must reveal the key to get paid (via `claim(preimage)`), and the revealed key is what the agent needs to decrypt. This is a single atomic action — you can't get paid without enabling decryption.
 
-### Why Three Chains
+### Why Two Chains
 
 - **Arc Testnet**: USDC-native gas simplifies agent UX — no volatile gas token to manage
-- **Solana Devnet**: Mature ecosystem, fast finality, demonstrates cross-VM compatibility
 - **Base Sepolia**: x402 exact scheme compatibility — agents in the existing ecosystem can use Payproof without migration
 
 ### Why In-Memory State (prototype)
@@ -275,11 +266,10 @@ The merchant's `claimAfterConfirmation()` runs asynchronously after the HTTP res
 │                       → return EncryptedPayload           │
 │                       → fire-and-forget claim             │
 └────────────────────┬────────────────────────────────────┘
-                     │ on-chain txs (viem / @solana/web3.js)
+                     │ on-chain txs (viem)
 ┌────────────────────▼────────────────────────────────────┐
 │  Smart Contracts                                         │
 │  ├── HTLC.sol on Arc Testnet (EVM, Foundry)             │
-│  ├── htlc_solana on Solana Devnet (Anchor)              │
 │  └── PayproofRegistry on Arc (version management)        │
 └─────────────────────────────────────────────────────────┘
 ```

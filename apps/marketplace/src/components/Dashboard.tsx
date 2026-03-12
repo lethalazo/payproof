@@ -152,7 +152,6 @@ export default function Dashboard() {
   const accentForChain = (name: string) => {
     if (name.includes("Base")) return "blue";
     if (name.includes("Arc")) return "purple";
-    if (name.includes("Solana")) return "orange";
     return "blue";
   };
 
@@ -173,9 +172,6 @@ export default function Dashboard() {
             </span>
             <span className="px-2 py-1 bg-purple-900/30 rounded text-purple-400 border border-purple-800/30">
               Arc Testnet
-            </span>
-            <span className="px-2 py-1 bg-orange-900/30 rounded text-orange-400 border border-orange-800/30">
-              Solana Devnet
             </span>
           </div>
         </div>

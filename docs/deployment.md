@@ -5,7 +5,6 @@
 ## Prerequisites
 
 - **Node.js** 18+ and **pnpm** (for monorepo)
-- **Rust + Solana CLI** (only if deploying the Solana HTLC program)
 - **Foundry/Forge** (only if deploying the EVM HTLC contract)
 - Funded wallets on the target testnets
 
@@ -24,13 +23,9 @@ cp .env.example .env.local
 |----------|--------|---------|-------------|
 | `ANTHROPIC_API_KEY` | `sk-ant-...` | Marketplace | Claude API key |
 | `AGENT_PRIVATE_KEY` | `0x...` hex | Client SDK | Agent's EVM private key (Base Sepolia + Arc) |
-| `AGENT_SOLANA_PRIVATE_KEY` | Base58 | Client SDK | Agent's Solana keypair |
 | `MERCHANT_ADDRESS` | `0x...` | Server SDK, Client SDK | EVM address that receives payments |
-| `MERCHANT_SOL_ADDRESS` | Base58 | Server SDK, Client SDK | Solana address that receives payments |
 | `MERCHANT_PRIVATE_KEY` | Hex (no 0x prefix) | Server SDK | Merchant's EVM key (signs HTLC claims on Arc) |
-| `MERCHANT_SOLANA_PRIVATE_KEY` | Base58 | Server SDK | Merchant's Solana key (signs HTLC claims on Solana) |
 | `HTLC_CONTRACT_ADDRESS` | `0x...` | Server SDK, Client SDK | Deployed HTLC.sol address on Arc Testnet |
-| `HTLC_SOLANA_PROGRAM_ID` | Base58 | Server SDK, Client SDK | Deployed Anchor program ID on Solana Devnet |
 | `PAYPROOF_REGISTRY_ADDRESS` | `0x...` | Client SDK | PayproofRegistry contract on Arc Testnet |
 | `TREASURY_ADDRESS` | `0x...` | HTLC constructor | Treasury address for dispute resolution |
 
@@ -38,8 +33,6 @@ cp .env.example .env.local
 
 | Variable | Default | Read By | Description |
 |----------|---------|---------|-------------|
-| `SOLANA_USDC_MINT` | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` | Client/Server SDK | USDC mint on Solana Devnet |
-| `SOLANA_RPC_URL` | `https://api.devnet.solana.com` | Server SDK | Solana RPC endpoint |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Marketplace | Self-referential URL for internal API calls |
 | ~~`PAYPROOF_ENCRYPTED_FLOW`~~ | — | — | *Removed* — encrypted mode is now auto-detected via `scheme: "direct"` in the payment header |
 
@@ -49,14 +42,12 @@ cp .env.example .env.local
 |----------|---------|---------|
 | HTLC (7-state) | Arc Testnet | `0x6C14aDD48bF2D4D01Df5D98Ab5A7Ac2DcD181bd7` |
 | PayproofRegistry | Arc Testnet | `0x811A8C492697d3EfbbA754748F34bAF8B59FfCf3` |
-| HTLC Solana | Solana Devnet | `GigEY98avKBtVEtJpqytTdSfEaCnULZNuE5Nyx98R7Yh` |
 | USDC | Arc Testnet | `0x3600000000000000000000000000000000000000` |
-| USDC | Solana Devnet | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` |
 | USDC | Base Sepolia | `0x036CbD53842c5426634e7929541eC2318f3dCF7e` |
 
 ## Key Management
 
-The system uses **four separate keys**:
+The system uses **two separate key pairs** (four keys total):
 
 ### Agent Keys
 
@@ -68,7 +59,6 @@ These are the AI agent's wallet keys. The agent uses them to:
 
 ```
 AGENT_PRIVATE_KEY       → Derives EVM address used on Base Sepolia + Arc Testnet
-AGENT_SOLANA_PRIVATE_KEY → Separate Solana keypair (different address space)
 ```
 
 The same EVM private key is used for both Base Sepolia and Arc Testnet because they share the same address space.
@@ -81,9 +71,7 @@ These are the data provider's wallet keys. The server uses them to:
 
 ```
 MERCHANT_PRIVATE_KEY          → Signs postDataHash() and claim() on Arc Testnet
-MERCHANT_SOLANA_PRIVATE_KEY   → Signs post_data_hash and claim on Solana Devnet
 MERCHANT_ADDRESS              → Receives funds on Base Sepolia + Arc
-MERCHANT_SOL_ADDRESS          → Receives funds on Solana
 ```
 
 The merchant address and the key that signs claims must correspond — the private key should derive the merchant address.
@@ -103,12 +91,6 @@ The merchant address and the key that signs claims must correspond — the priva
 3. Explorer: `https://testnet.arcscan.app`
 4. USDC address: `0x3600000000000000000000000000000000000000`
 
-### Solana Devnet
-
-1. Get SOL from `solana airdrop 2 --url devnet` (for gas)
-2. Create a USDC token account and fund it
-3. Mint address: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` (or your custom devnet mint)
-
 ## Build Process
 
 The monorepo build order matters — packages depend on each other:
@@ -122,20 +104,6 @@ pnpm -r build
 ```
 
 Each package uses `tsup` for TypeScript bundling. The build command in each `package.json` runs `tsup src/index.ts --format esm --dts`.
-
-### Solana Program Build
-
-The Solana program is built separately using `cargo build-sbf`:
-
-```bash
-# Build with the correct Solana tools version
-cargo build-sbf --tools-version v1.52 \
-  --manifest-path programs/htlc-solana/Cargo.toml
-
-# Output: target/deploy/htlc_solana.so
-```
-
-**Important**: Do NOT use `anchor build` — it may use a different tools version. The `Cargo.toml` has `overflow-checks = true` in the release profile for safety.
 
 ## Contract Deployment
 
@@ -173,34 +141,6 @@ cast send $REGISTRY_ADDRESS "registerVersion(address)" $HTLC_CONTRACT_ADDRESS \
   --private-key $DEPLOYER_PRIVATE_KEY
 ```
 
-### htlc-solana (Solana Devnet)
-
-```bash
-# Build (use cargo build-sbf, NOT anchor build)
-cargo build-sbf --tools-version v1.52 \
-  --manifest-path programs/htlc-solana/Cargo.toml
-
-# Deploy
-solana program deploy \
-  target/deploy/htlc_solana.so \
-  --url devnet \
-  --keypair ~/.config/solana/id.json \
-  --program-id target/deploy/htlc_solana-keypair.json
-
-# Note the program ID → set HTLC_SOLANA_PROGRAM_ID
-```
-
-After deployment, initialize the ProgramConfig with the treasury address. This only needs to be done once:
-
-```bash
-# Via the Anchor client or a script that calls initialize_config(treasury_pubkey)
-```
-
-The upgraded program uses 258-byte LockAccount (extended from 186 bytes) with three new fields:
-- `data_deadline: i64` — confirmation window expiry timestamp
-- `data_hash: [u8; 32]` — SHA-256 of encrypted ciphertext
-- `receipt_hash: [u8; 32]` — agent's confirmed receipt hash
-
 ## Running the Application
 
 ### Development
@@ -232,8 +172,7 @@ The full atomic encrypted data-for-payment flow is **automatically enabled** whe
 ### Redeploying Contracts
 
 1. **EVM**: Run forge create/deploy again. Update `HTLC_CONTRACT_ADDRESS` in `.env.local`. Re-register in PayproofRegistry if needed.
-2. **Solana**: Run `cargo build-sbf` then `solana program deploy`. The program ID stays the same if using the same keypair.
-3. **Rebuild packages**: After changing addresses, run `pnpm -r build` to pick up new constants.
+2. **Rebuild packages**: After changing addresses, run `pnpm -r build` to pick up new constants.
 
 ### Updating Environment
 
@@ -275,7 +214,7 @@ The EVM wallet key is missing. Set it in `.env.local`. Must be a hex private key
 
 ### "MERCHANT_PRIVATE_KEY not set — required for HTLC claim"
 
-The server can't sign claim transactions. Required for Arc/Solana HTLC payments. Base Sepolia "exact" payments use the hosted facilitator and don't need this.
+The server can't sign claim transactions. Required for Arc HTLC payments. Base Sepolia "exact" payments use the hosted facilitator and don't need this.
 
 ### "Preimage not found or expired for this hashlock"
 
@@ -287,10 +226,6 @@ The on-chain transaction to commit the encrypted data hash failed. Check:
 - Merchant wallet has enough USDC for gas (on Arc, USDC is gas)
 - HTLC contract address is correct
 - Lock is still in `Locked` state (not expired)
-
-### Solana "confirmTransaction" timeouts
-
-Common on devnet. The facilitator handles this with a fallback to `getSignatureStatuses`. If the claim truly failed, the agent can use `check_pending_payments` and `refund_expired_lock` to recover.
 
 ### "Lock hashlock does not match expected"
 

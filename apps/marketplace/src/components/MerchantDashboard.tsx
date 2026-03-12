@@ -15,7 +15,6 @@ interface MerchantChain {
 
 interface MerchantData {
   address: string;
-  solAddress: string;
   chains: MerchantChain[];
 }
 
@@ -31,10 +30,9 @@ interface MerchantTx {
   type: string;
 }
 
-const accentForChain = (name: string): "blue" | "purple" | "orange" => {
+const accentForChain = (name: string): "blue" | "purple" => {
   if (name.includes("Base")) return "blue";
   if (name.includes("Arc")) return "purple";
-  if (name.includes("Solana")) return "orange";
   return "blue";
 };
 
@@ -43,8 +41,6 @@ function explorerTxUrl(chain: string, txHash: string): string | undefined {
     return `https://sepolia.basescan.org/tx/${txHash}`;
   if (chain.includes("Arc"))
     return `https://testnet.arcscan.app/tx/${txHash}`;
-  if (chain.includes("Solana"))
-    return `https://explorer.solana.com/tx/${txHash}?cluster=devnet`;
   return undefined;
 }
 
@@ -53,8 +49,6 @@ function chainBadge(chain: string): { bg: string; text: string } {
     return { bg: "bg-blue-900/50", text: "text-blue-300" };
   if (chain.includes("Arc"))
     return { bg: "bg-purple-900/50", text: "text-purple-300" };
-  if (chain.includes("Solana"))
-    return { bg: "bg-orange-900/50", text: "text-orange-300" };
   return { bg: "bg-gray-900/50", text: "text-gray-300" };
 }
 
@@ -113,7 +107,7 @@ export default function MerchantDashboard() {
             Loading merchant balances...
           </div>
         ) : merchant ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {merchant.chains.map((chain) => (
               <div key={chain.name} className="relative">
                 <WalletCard

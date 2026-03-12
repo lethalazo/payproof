@@ -9,11 +9,11 @@
    ```
 
 2. **Environment variables**: Tests load from `apps/marketplace/.env.local`. Required vars:
-   - `AGENT_PRIVATE_KEY`, `AGENT_SOLANA_PRIVATE_KEY`
-   - `MERCHANT_ADDRESS`, `MERCHANT_PRIVATE_KEY`, `MERCHANT_SOLANA_PRIVATE_KEY`
-   - `HTLC_CONTRACT_ADDRESS`, `HTLC_SOLANA_PROGRAM_ID`, `MERCHANT_SOL_ADDRESS`
+   - `AGENT_PRIVATE_KEY`
+   - `MERCHANT_ADDRESS`, `MERCHANT_PRIVATE_KEY`
+   - `HTLC_CONTRACT_ADDRESS`
 
-3. **Funded wallets**: Agent and merchant wallets need USDC on Arc Testnet and Solana Devnet. See [Deployment Guide](deployment.md#wallet-funding).
+3. **Funded wallets**: Agent and merchant wallets need USDC on Arc Testnet. See [Deployment Guide](deployment.md#wallet-funding).
 
 ## Install Test Dependencies
 
@@ -30,7 +30,6 @@ pnpm test
 # Individual suites
 pnpm test:unit          # Unit tests — no network calls, fast (~5s)
 pnpm test:evm           # Arc Testnet HTLC + Registry (~3-10 min)
-pnpm test:solana        # Solana Devnet HTLC 7-state (~5-15 min)
 pnpm test:facilitator   # Facilitator integration (~3-5 min)
 pnpm test:e2e           # Full encrypted flow with dev server (~5 min)
 ```
@@ -40,7 +39,7 @@ pnpm test:e2e           # Full encrypted flow with dev server (~5 min)
 ```
 tests/
 ├── setup.ts                          # Env loading + validation
-├── helpers.ts                        # Shared utilities (accounts, clients, PDA derivation)
+├── helpers.ts                        # Shared utilities (accounts, clients)
 ├── unit/
 │   ├── preimage-store.test.ts        # MemoryPreimageStore: generate, retrieve, TTL, consume
 │   ├── lock-store.test.ts            # MemoryLockStore: add, get, updateStatus, getAll
@@ -50,8 +49,6 @@ tests/
 ├── evm/
 │   ├── htlc-arc.test.ts              # Arc HTLC: lock, getLock, postDataHash, confirmReceipt, claim, refund, full happy path
 │   └── registry.test.ts              # PayproofRegistry: getVersion, getLatestVersion
-├── solana/
-│   └── htlc-solana.test.ts           # Solana HTLC 7-state: lock, read, postDataHash, confirmReceipt, claim, refund, sendToTreasury
 ├── facilitator/
 │   └── facilitator-arc.test.ts       # DirectTransferFacilitator: verify (positive/wrong amount/wrong recipient), postDataHash, claimAfterConfirmation
 └── e2e/
@@ -60,9 +57,9 @@ tests/
 
 ## Execution Model
 
-- **Sequential**: All tests run in a single fork (`singleFork: true` in vitest config) to prevent EVM nonce conflicts and Solana rate limiting.
+- **Sequential**: All tests run in a single fork (`singleFork: true` in vitest config) to prevent EVM nonce conflicts.
 - **Unique lockIds**: Each test generates a fresh random lockId to avoid collisions.
-- **Real testnets**: EVM, Solana, facilitator, and E2E tests hit actual testnets — no mocking.
+- **Real testnets**: EVM, facilitator, and E2E tests hit actual testnets — no mocking.
 
 ## Timeout Table
 
@@ -71,7 +68,6 @@ tests/
 | Unit | 5s (default) | No network calls |
 | EVM HTLC | 60-300s | On-chain transactions on Arc Testnet |
 | EVM Registry | 30s | Read-only contract calls |
-| Solana HTLC | 60-180s | sendToTreasury waits 120s+ for CONFIRMATION_WINDOW |
 | Facilitator | 60-180s | claimAfterConfirmation polls for 3 min max |
 | E2E | 300s | Spawns dev server + full payment flow |
 
@@ -93,15 +89,6 @@ Real Arc Testnet transactions:
 
 - **htlc-arc**: Tests all 7 state transitions. The `beforeAll` hook ensures the agent has approved the HTLC contract to spend USDC. Each test creates a fresh lock, exercises one or more state transitions, and reads the final state on-chain.
 - **registry**: Reads PayproofRegistry to verify the HTLC address is registered at version 1.
-
-### Solana Tests (`tests/solana/`)
-
-Real Solana Devnet transactions. Tests the full 7-state machine:
-
-- Builds raw Anchor instructions (discriminator + args)
-- Uses PDA derivation for lock and escrow accounts
-- The `sendToTreasury` test waits ~130s for the CONFIRMATION_WINDOW to expire
-- Requires ProgramConfig to be initialized (treasury address set)
 
 ### Facilitator Tests (`tests/facilitator/`)
 
@@ -130,14 +117,13 @@ Full encrypted payment flow:
 
 ## Known Limitations
 
-- **Rate limiting**: Solana devnet has aggressive rate limits. Tests use `maxRetries: 3` and confirmed commitment.
 - **sendToTreasury**: Requires ProgramConfig to be initialized. If not initialized, the test logs a warning and skips.
 - **E2E server startup**: The dev server can take 30-60s to start. The test waits up to 90s.
 - **Nonce conflicts**: Tests run sequentially to prevent EVM nonce conflicts between concurrent transactions from the same wallet.
 
 ## How to Add New Tests
 
-1. Create a `.test.ts` file in the appropriate directory (`unit/`, `evm/`, `solana/`, etc.)
+1. Create a `.test.ts` file in the appropriate directory (`unit/`, `evm/`, etc.)
 2. Import helpers from `../helpers.js` for accounts, clients, and PDA derivation
 3. Use `randomBytes(32)` for unique lockIds
 4. Set appropriate timeouts via the third argument to `it()` or `describe()`

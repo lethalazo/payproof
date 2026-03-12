@@ -3,7 +3,7 @@ import { CHAIN_REGISTRY, type ChainConfig } from "@payproof/contracts";
 /**
  * Build the list of enabled chains from environment variables.
  * EVM chains are enabled if AGENT_PRIVATE_KEY exists.
- * Solana is enabled only if AGENT_SOLANA_PRIVATE_KEY exists.
+ * Solana support exists in the SDK but is disabled in the demo app.
  */
 export function getEnabledChains(): ChainConfig[] {
   const chains: ChainConfig[] = [];
@@ -11,12 +11,6 @@ export function getEnabledChains(): ChainConfig[] {
   if (process.env.AGENT_PRIVATE_KEY) {
     for (const chain of Object.values(CHAIN_REGISTRY)) {
       if (chain.family === "evm") chains.push(chain);
-    }
-  }
-
-  if (process.env.AGENT_SOLANA_PRIVATE_KEY) {
-    for (const chain of Object.values(CHAIN_REGISTRY)) {
-      if (chain.family === "solana") chains.push(chain);
     }
   }
 

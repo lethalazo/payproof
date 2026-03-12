@@ -22,7 +22,6 @@ interface ParsedTx {
 function chainBadge(chain: string): string {
   if (chain.includes("Base")) return "bg-blue-900/50 text-blue-300";
   if (chain.includes("Arc")) return "bg-purple-900/50 text-purple-300";
-  if (chain.includes("Solana")) return "bg-orange-900/50 text-orange-300";
   return "bg-gray-900/50 text-gray-300";
 }
 

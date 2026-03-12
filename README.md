@@ -56,10 +56,9 @@ Agent                           Merchant                    Chain
 | Chain | Scheme | Token | Gas | Status |
 |-------|--------|-------|-----|--------|
 | **Arc Testnet** | `direct` (HTLC) | USDC | USDC (native) | Primary — full atomic protocol |
-| **Solana Devnet** | `direct` (HTLC) | USDC (SPL) | SOL | Full atomic protocol |
 | **Base Sepolia** | `exact` (Permit2) | USDC | ETH | x402 compatibility — trust-based |
 
-Arc and Solana use the atomic HTLC protocol. Base Sepolia uses x402's "exact" scheme via the hosted facilitator for backward compatibility.
+Arc uses the atomic HTLC protocol. Base Sepolia uses x402's "exact" scheme via the hosted facilitator for backward compatibility.
 
 ## Quick Start
 
@@ -70,7 +69,7 @@ pnpm install
 pnpm -r build
 cp apps/marketplace/.env.example apps/marketplace/.env.local
 # Fill in: ANTHROPIC_API_KEY, AGENT_PRIVATE_KEY, MERCHANT_ADDRESS,
-#          HTLC_CONTRACT_ADDRESS, TREASURY_ADDRESS, etc.
+#          HTLC_CONTRACT_ADDRESS, MERCHANT_PRIVATE_KEY, TREASURY_ADDRESS
 pnpm dev
 ```
 
@@ -91,10 +90,6 @@ const client = createPayproofClient({
       htlcContractAddress: "0x...",
       networks: ["eip155:5042002"],      // Arc only (omit for all EVM chains)
     },
-    solana: {                             // omit entirely to disable Solana
-      privateKey: "...",
-      htlcProgramId: "...",
-    },
   },
   // Auto-refund expired locks in the background
   autoRefund: {
@@ -112,7 +107,7 @@ const response = await fetch("https://api.example.com/weather");
 const data = await response.json(); // plaintext — decryption is automatic
 ```
 
-Legacy top-level config (`evmPrivateKey`, `solanaPrivateKey`) still works for backwards compatibility.
+Legacy top-level config (`evmPrivateKey`) still works for backwards compatibility.
 
 ### `@payproof/server` — Merchant SDK
 
@@ -127,7 +122,6 @@ const server = createPayproofServer({
       merchantPrivateKey: "...",
       htlcContractAddress: "0x...",
     },
-    // Solana omitted — 402 responses won't include Solana
   },
 });
 
@@ -157,7 +151,7 @@ payproof/
 │   │       ├── client.ts          #   createPayproofClient() factory
 │   │       ├── x402/              #   x402 integration + encrypted response handling
 │   │       ├── evm/               #   Arc wallet + HTLC client (lock, confirm, watch)
-│   │       ├── solana/            #   Solana wallet + HTLC client
+│   │       ├── solana/            #   Solana wallet + HTLC client (SDK-level, not enabled in demo)
 │   │       ├── crypto/            #   AES-256-GCM decryption
 │   │       └── stores/            #   LockStore — pending payment tracking
 │   ├── server/                    # @payproof/server — merchant-side SDK
@@ -184,7 +178,7 @@ payproof/
 ├── contracts/
 │   └── HTLC.sol                   # EVM HTLC contract (7-state)
 └── programs/
-    └── htlc-solana/src/lib.rs     # Solana HTLC program (Anchor)
+    └── htlc-solana/src/lib.rs     # Solana HTLC program (Anchor, not enabled in demo)
 ```
 
 ## Why Payproof vs x402 Exact Scheme
@@ -202,7 +196,7 @@ Payproof uses x402 as the transport layer (HTTP 402, payment headers) but replac
 - **[Protocol Specification (chain-agnostic)](PROTOCOL.md)** — Pure HTLC protocol spec: state machine, operations, conformance checklist
 - **[Protocol + Transport](docs/protocol.md)** — 14-step flow including x402 HTTP transport, game theory, cryptographic details
 - **[Architecture Overview](docs/architecture.md)** — System design, package structure, data flow
-- **[Smart Contracts](docs/smart-contracts.md)** — 7-state HTLC, EVM + Solana, PayproofRegistry
+- **[Smart Contracts](docs/smart-contracts.md)** — 7-state HTLC, EVM, PayproofRegistry
 - **[Payment System](docs/payment-system.md)** — Three schemes, encrypted flow, preimage management
 - **[Payment Recovery](docs/payment-recovery.md)** — Failure modes, defense layers, treasury safety net
 - **[SDK Guide](docs/sdk-guide.md)** — Merchant + agent integration with code examples

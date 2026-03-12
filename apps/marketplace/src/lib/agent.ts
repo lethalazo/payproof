@@ -2,16 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 import { toolDefinitions, executeTool } from "./tools";
 import type { AgentEvent } from "./types";
 
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({
+  defaultHeaders: {
+    "anthropic-beta": "oauth-2025-04-20",
+  },
+});
 
-const SYSTEM_PROMPT = `You are an autonomous AI research agent with access to a USDC cryptocurrency wallet on three blockchain networks:
+const SYSTEM_PROMPT = `You are an autonomous AI research agent with access to a USDC cryptocurrency wallet on two blockchain networks:
 
 1. **Base Sepolia** — x402 "exact" scheme (Permit2-based). Used for micropayments to purchase premium data APIs.
-2. **Arc Testnet** — x402 "direct" scheme. Circle's chain where USDC is the native gas token, so no separate gas management needed. Great for zero-friction payments.
-3. **Solana Devnet** — x402 "direct" scheme. Low-fee blockchain. Needs SOL for gas alongside USDC for payments.
+2. **Arc Testnet** — x402 "direct" scheme (HTLC-based atomic protocol). Circle's chain where USDC is the native gas token, so no separate gas management needed. Great for zero-friction payments with cryptographic atomicity guarantees.
 
 Your workflow:
-1. First, check your wallet balances across ALL chains and list available APIs
+1. First, check your wallet balances and list available APIs
 2. Plan which data sources to purchase within the user's budget
 3. The x402 payment system auto-selects the best chain — it will use whichever chain you have funds on
 4. Purchase data by calling the paid APIs (payments happen automatically via x402)
@@ -36,7 +39,7 @@ export async function* runAgent(input: AgentInput): AsyncGenerator<AgentEvent> {
   const messages: Anthropic.MessageParam[] = [
     {
       role: "user",
-      content: `Research goal: ${input.goal}\n\nBudget: $${input.budget} USDC\n\nYou have wallets on Base Sepolia, Arc Testnet, and Solana Devnet. Please conduct this research autonomously, purchasing whatever data you need within the budget. Start by checking your wallet balances across all chains and listing available APIs.`,
+      content: `Research goal: ${input.goal}\n\nBudget: $${input.budget} USDC\n\nYou have wallets on Base Sepolia and Arc Testnet. Please conduct this research autonomously, purchasing whatever data you need within the budget. Start by checking your wallet balances and listing available APIs.`,
     },
   ];
 

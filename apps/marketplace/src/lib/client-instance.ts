@@ -14,9 +14,6 @@ export function getPayproofClient(): PayproofClient {
     _client = createPayproofClient({
       evmPrivateKey: requireEnv("AGENT_PRIVATE_KEY", "set it in .env (hex, no 0x prefix)"),
       htlcContractAddress: requireEnv("HTLC_CONTRACT_ADDRESS", "deploy contracts/HTLC.sol and set the address in .env") as `0x${string}`,
-      solanaPrivateKey: process.env.AGENT_SOLANA_PRIVATE_KEY,
-      htlcSolanaProgramId: process.env.HTLC_SOLANA_PROGRAM_ID,
-      solanaUsdcMint: process.env.SOLANA_USDC_MINT,
     });
   }
   return _client;

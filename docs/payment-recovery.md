@@ -64,9 +64,7 @@ The HTLC contract provides cryptographic guarantees:
 
 The client and server SDKs handle transient failures:
 - **Gas estimation**: HTLC client estimates gas before submitting transactions
-- **Transaction retry**: Solana claim includes `maxRetries: 3`
-- **Confirmation fallback**: If `confirmTransaction` times out on Solana, falls back to `getSignatureStatuses`
-- **Event polling**: `watchForClaim` polls with 3-second intervals for up to 4 minutes (EVM) or 3 minutes (Solana)
+- **Event polling**: `watchForClaim` polls with 3-second intervals for up to 4 minutes
 - **Background claim polling**: `claimAfterConfirmation` polls with 3-second intervals for up to 3 minutes
 
 ### Layer 3: Client-Side LockStore
@@ -81,8 +79,6 @@ interface PendingLock {
   timelock: number;
   createdAt: number;
   status: "locked" | "settled" | "refunded" | "claimed_by_server";
-  lockPDA?: string;           // Solana only
-  escrowPDA?: string;         // Solana only
   encryptedPayload?: EncryptedPayload;  // persisted for retry
 }
 ```
