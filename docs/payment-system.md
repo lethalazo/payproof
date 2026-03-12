@@ -159,7 +159,7 @@ The `handleEncryptedResponse` function in `x402.ts`:
 3. Decode `encryptedBlob` from base64 → ciphertext bytes
 4. Compute `receiptHash = SHA-256(ciphertext_bytes)`
 5. Call `confirmReceipt(lockId, receiptHash)` on-chain
-6. Poll for `Claimed` event via `watchForClaim()` (up to 60s)
+6. Poll for `Claimed` event via `watchForClaim()` (up to 4 min EVM / 3 min Solana)
 7. Extract preimage from `Claimed` event
 8. Decrypt: `AES-256-GCM.decrypt(ciphertext, nonce, authTag, preimage)`
 9. Return new `Response` with plaintext body
@@ -177,7 +177,7 @@ interface PreimageStore {
 ```
 
 - **Generation**: `crypto.getRandomValues(32 bytes)` → `SHA-256(bytes)` → `{ preimage, hashlock }`
-- **TTL**: 5 minutes (MemoryPreimageStore default)
+- **TTL**: 30 minutes (MemoryPreimageStore default)
 - **Lifecycle**:
   1. `generateHashlock()` — called during 402 response generation
   2. `getPreimage()` — called during encryption (doesn't consume)

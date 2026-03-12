@@ -27,9 +27,9 @@ The SDK packages are published independently. The marketplace app demonstrates t
 | `packages/contracts/src/networks.ts` | Chain configs: USDC_ASSETS, arcTestnet, REGISTRY_ADDRESSES, DEFAULT_TIMELOCK_SECONDS |
 | `packages/server/src/facilitator.ts` | DirectTransferFacilitator: verify(), postDataHash(), claimAfterConfirmation() |
 | `packages/server/src/x402-direct-server.ts` | DirectTransferServer: parsePrice(), enhancePaymentRequirements() with hashlock generation |
-| `packages/server/src/adapters/next.ts` | createNextMiddleware(): passthrough mode vs encrypted mode (PAYPROOF_ENCRYPTED_FLOW) |
+| `packages/server/src/adapters/next.ts` | createNextMiddleware(): scheme-based routing — exact (passthrough) vs direct (encrypted) |
 | `packages/server/src/gate.ts` | createPayproofServer(): wires facilitator + scheme handlers + stores |
-| `packages/server/src/stores/preimage-store.ts` | PreimageStore interface + MemoryPreimageStore (5-min TTL) |
+| `packages/server/src/stores/preimage-store.ts` | PreimageStore interface + MemoryPreimageStore (30-min TTL) |
 | `packages/server/src/stores/ledger-store.ts` | LedgerStore interface + MemoryLedgerStore (revenue tracking) |
 | `packages/server/src/crypto/encryption.ts` | Server-side encrypt() + computeSHA256() using Web Crypto |
 | `packages/server/src/context/request-context.ts` | AbortSignal propagation for client disconnect detection |
@@ -67,7 +67,7 @@ The merchant-side SDK. Handles payment verification, data encryption, on-chain s
 | `facilitator.ts` | `DirectTransferFacilitator` | On-chain operations: `verify()`, `postDataHash()`, `claimAfterConfirmation()` |
 | `x402-direct-server.ts` | `DirectTransferServer` | Price parsing, hashlock generation, payment requirement enhancement |
 | `adapters/next.ts` | `createNextMiddleware()` | Next.js middleware — orchestrates the full encrypted flow |
-| `stores/preimage-store.ts` | `PreimageStore`, `MemoryPreimageStore` | Preimage generation and retrieval (5-min TTL) |
+| `stores/preimage-store.ts` | `PreimageStore`, `MemoryPreimageStore` | Preimage generation and retrieval (30-min TTL) |
 | `stores/ledger-store.ts` | `LedgerStore`, `MemoryLedgerStore` | Settlement transaction recording |
 | `crypto/encryption.ts` | `encrypt()`, `computeSHA256()` | AES-256-GCM encryption with preimage as key |
 | `context/request-context.ts` | `runWithRequestContext()`, `isClientDisconnected()` | AbortSignal propagation for disconnect detection |
@@ -152,16 +152,17 @@ The facilitator handles all on-chain interactions:
 
 `createNextMiddleware()` in `packages/server/src/adapters/next.ts` supports two modes:
 
-### Passthrough Mode (default)
+### Exact Scheme (passthrough)
 
-When `PAYPROOF_ENCRYPTED_FLOW` is not set or `false`:
+For `scheme: "exact"` payments (Permit2-based, trust model):
 
 1. x402 base handler verifies payment
 2. `settle()` stub fires (no-op for direct scheme)
 3. `NextResponse.next()` — route handler serves data unencrypted
-4. `claimAfterConfirmation()` runs fire-and-forget in background
 
-### Encrypted Mode (`PAYPROOF_ENCRYPTED_FLOW=true`)
+### Direct Scheme (encrypted, atomic)
+
+For `scheme: "direct"` payments — auto-detected from the payment header:
 
 Full atomic data-for-payment flow:
 

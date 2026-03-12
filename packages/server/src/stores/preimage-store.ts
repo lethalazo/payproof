@@ -46,6 +46,10 @@ export class MemoryPreimageStore implements PreimageStore {
   }
 
   consumePreimage(hashlock: string): string | null {
-    return this.getPreimage(hashlock);
+    const preimage = this.getPreimage(hashlock);
+    if (preimage) {
+      this.secrets.delete(hashlock);
+    }
+    return preimage;
   }
 }

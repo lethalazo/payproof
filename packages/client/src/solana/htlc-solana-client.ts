@@ -272,10 +272,12 @@ export function createHtlcSolanaClient(config: HtlcSolanaClientConfig) {
           const instructions = (message as any).compiledInstructions || (message as any).instructions;
           if (!instructions) continue;
 
+          const claimDisc = anchorDiscriminator("claim");
           for (const ix of instructions) {
             const ixData = Buffer.from(ix.data);
-            // Claim instruction: 8 bytes discriminator + 32 bytes preimage
-            if (ixData.length === 40) {
+            // Claim instruction: 8 bytes discriminator + 32 bytes preimage = 40 bytes
+            // Verify discriminator to distinguish from post_data_hash and confirm_receipt (also 40 bytes)
+            if (ixData.length === 40 && ixData.subarray(0, 8).equals(claimDisc)) {
               const preimage = ixData.subarray(8, 40);
               return preimage.toString("hex");
             }

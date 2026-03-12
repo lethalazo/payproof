@@ -158,7 +158,7 @@ const REGISTRY_ABI = parseAbi([
 
 ## Solana Program: htlc_solana
 
-**Location**: `packages/contracts/programs/htlc-solana/src/lib.rs` (496 lines)
+**Location**: `packages/contracts/programs/htlc-solana/src/lib.rs` (495 lines)
 **Program ID**: `GigEY98avKBtVEtJpqytTdSfEaCnULZNuE5Nyx98R7Yh`
 
 ### Account Layout
@@ -314,11 +314,11 @@ cast send $REGISTRY_ADDRESS "registerVersion(address)" $HTLC_ADDRESS \
 ### htlc_solana (Solana Devnet)
 
 ```bash
-# Build
-anchor build
+# Build (use cargo build-sbf, NOT anchor build — see deployment.md)
+cargo build-sbf --manifest-path programs/htlc-solana/Cargo.toml
 
 # Deploy
-anchor deploy --provider.cluster devnet
+solana program deploy target/deploy/htlc_solana.so --program-id <KEYPAIR> --url devnet
 
 # Initialize ProgramConfig with treasury
 # (via client script or Anchor test)

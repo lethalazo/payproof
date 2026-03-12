@@ -22,11 +22,13 @@ export function createNextMiddleware(
   // The base x402 proxy handles 402 responses, payment verification, and settlement
   const baseHandler = paymentProxy(routes, server.resourceServer);
 
+  // Generate a per-instance secret for internal bypass authentication
+  const internalSecret = crypto.randomUUID();
+
   return async (req: NextRequest) => {
     // Internal data-fetch bypass: the encrypted flow fetches the route's data
-    // via an internal HTTP call. Skip middleware for those requests so they
-    // reach the route handler directly.
-    if (req.headers.get("x-payproof-internal") === "true") {
+    // via an internal HTTP call. Verify with shared secret to prevent external spoofing.
+    if (req.headers.get("x-payproof-internal") === internalSecret) {
       return NextResponse.next();
     }
 
@@ -60,7 +62,7 @@ export function createNextMiddleware(
           // --- Direct scheme: full encrypted flow ---
           // The 7-state HTLC requires: postDataHash → confirmReceipt → claim.
           // We must run the encrypted flow to complete this lifecycle.
-          return handleDirectSchemePayment(req, paymentPayload, server);
+          return handleDirectSchemePayment(req, paymentPayload, server, internalSecret);
         }
       }
 
@@ -93,6 +95,7 @@ async function handleDirectSchemePayment(
     };
   },
   server: PayproofServer,
+  internalSecret: string,
 ): Promise<NextResponse> {
   const { payload } = paymentPayload;
   const accepted = paymentPayload.accepted;
@@ -139,7 +142,7 @@ async function handleDirectSchemePayment(
   // Step 2: Fetch route data via internal HTTP call (bypass middleware)
   const internalUrl = new URL(req.url);
   const dataResponse = await fetch(internalUrl.toString(), {
-    headers: { "x-payproof-internal": "true" },
+    headers: { "x-payproof-internal": internalSecret },
   });
 
   if (!dataResponse.ok) {

@@ -22,7 +22,7 @@ cp .env.example .env.local
 
 | Variable | Format | Read By | Description |
 |----------|--------|---------|-------------|
-| `ANTHROPIC_AUTH_TOKEN` | `sk-ant-...` | Marketplace | Claude API key (or OAuth token) |
+| `ANTHROPIC_API_KEY` | `sk-ant-...` | Marketplace | Claude API key |
 | `AGENT_PRIVATE_KEY` | `0x...` hex | Client SDK | Agent's EVM private key (Base Sepolia + Arc) |
 | `AGENT_SOLANA_PRIVATE_KEY` | Base58 | Client SDK | Agent's Solana keypair |
 | `MERCHANT_ADDRESS` | `0x...` | Server SDK, Client SDK | EVM address that receives payments |
@@ -41,7 +41,7 @@ cp .env.example .env.local
 | `SOLANA_USDC_MINT` | `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU` | Client/Server SDK | USDC mint on Solana Devnet |
 | `SOLANA_RPC_URL` | `https://api.devnet.solana.com` | Server SDK | Solana RPC endpoint |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Marketplace | Self-referential URL for internal API calls |
-| `PAYPROOF_ENCRYPTED_FLOW` | `false` | Middleware | Enable encrypted data-for-payment mode |
+| ~~`PAYPROOF_ENCRYPTED_FLOW`~~ | — | — | *Removed* — encrypted mode is now auto-detected via `scheme: "direct"` in the payment header |
 
 ### Deployed Contract Addresses
 
@@ -222,9 +222,10 @@ pnpm --filter marketplace start
 
 ### Encrypted Flow Mode
 
-Set `PAYPROOF_ENCRYPTED_FLOW=true` in `.env.local` to enable the full atomic encrypted data-for-payment flow. In this mode, the middleware intercepts responses, encrypts them with the HTLC preimage, and returns `EncryptedPayload` responses.
+The full atomic encrypted data-for-payment flow is **automatically enabled** when a payment uses the `scheme: "direct"` (HTLC) payment header. No environment variable is needed — the middleware detects the scheme from the payment header and routes accordingly.
 
-Without this flag, the system operates in passthrough mode (data returned unencrypted, HTLC used only for payment).
+- **Direct scheme** (`scheme: "direct"`): Full encrypted flow — verify lock, encrypt data, post dataHash, return `EncryptedPayload`, claim after confirmation
+- **Exact scheme** (`scheme: "exact"`): Passthrough to x402 base handler — data returned unencrypted
 
 ## Maintenance
 
@@ -278,7 +279,7 @@ The server can't sign claim transactions. Required for Arc/Solana HTLC payments.
 
 ### "Preimage not found or expired for this hashlock"
 
-The server-side preimage store has a 5-minute TTL. If the client takes too long between getting payment requirements and submitting payment, the preimage expires. The client can refund after the timelock expires.
+The server-side preimage store has a 30-minute TTL. If the client takes too long between getting payment requirements and submitting payment, the preimage expires. The client can refund after the timelock expires.
 
 ### "post_data_hash_failed"
 
@@ -315,7 +316,7 @@ The prototype uses in-memory stores for simplicity. Production deployments repla
 
 | Component | Prototype | Production |
 |-----------|-----------|------------|
-| Preimage store | In-memory Map, 5-min TTL | Redis or database with TTL |
+| Preimage store | In-memory Map, 30-min TTL | Redis or database with TTL |
 | Merchant ledger | In-memory array | Database (PostgreSQL, etc.) |
 | Pending locks | In-memory Map | Database + on-chain indexing |
 | Enhancement cache | In-memory Map, 60s TTL | Redis with TTL |

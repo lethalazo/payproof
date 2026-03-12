@@ -133,7 +133,7 @@ Empty ──> Locked ──> DataPosted ──> Refunded (impossible*)
 | Timelock | Duration | Set when | Purpose |
 |----------|----------|----------|---------|
 | `timelock` | 300s (5 min) | `lock()` called | Overall deadline — agent can refund if merchant never responds |
-| `dataDeadline` | `timelock + 120s` window | `postDataHash()` called | Confirmation window — agent must confirm receipt within 120s or funds go to treasury |
+| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window — agent must confirm receipt within 120s or funds go to treasury |
 
 The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestamp when the merchant posts the data hash. This gives the agent time to verify the encrypted data and confirm receipt.
 
@@ -229,5 +229,5 @@ The server includes `extra.protocolVersion` in the 402 response. The client SDK 
 | Agent misses `Claimed` event | Agent has ciphertext but no preimage | Preimage permanently on-chain in event logs; `LockStore` persists `EncryptedPayload` for offline retry |
 | Client disconnects mid-flow | Lock created but response never received | `AbortSignal` detection on server; lock remains for agent refund after timelock |
 | Gas spike during claim | Merchant claim tx may be delayed or fail | Fire-and-forget with retry; agent refund is the safety net |
-| Preimage store TTL expires | Server can't find preimage for claim | 5-minute TTL exceeds typical flow (~30s); `consumePreimage` called during claim, not during encrypt |
+| Preimage store TTL expires | Server can't find preimage for claim | 30-minute TTL exceeds typical flow (~30s); preimage is consumed (deleted) after successful claim |
 | Enhancement cache expires | Hashlock mismatch on retry | 60-second cache TTL; client gets fresh requirements on next attempt |

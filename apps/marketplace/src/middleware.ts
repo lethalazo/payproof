@@ -19,11 +19,8 @@ const routes = {
 const handler = createNextMiddleware(payproofServer, routes);
 
 export const middleware = async (req: import("next/server").NextRequest) => {
-  const hasPayment = !!(req.headers.get("x-payment") || req.headers.get("payment-signature"));
-  console.log(`[middleware] ${req.method} ${req.nextUrl.pathname} | payment: ${hasPayment}`);
   try {
     const res = await handler(req);
-    console.log(`[middleware] response status: ${res?.status}`);
     return res;
   } catch (err) {
     console.error(`[middleware] error:`, err);

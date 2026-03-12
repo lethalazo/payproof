@@ -80,7 +80,7 @@ interface PayproofServerConfig {
   treasuryAddress?: string;         // Treasury for unresolvable disputes
 
   // Optional — pluggable stores
-  preimageStore?: PreimageStore;    // Defaults to MemoryPreimageStore (5-min TTL)
+  preimageStore?: PreimageStore;    // Defaults to MemoryPreimageStore (30-min TTL)
   ledgerStore?: LedgerStore;        // Defaults to MemoryLedgerStore
 }
 ```
@@ -275,7 +275,7 @@ Prefer the chain with the most funds.`;
 | `insufficient_amount` | Lock amount < required | Rounding issue or price changed |
 | `wrong_hashlock` | Hashlock mismatch | Enhancement cache expired (60s TTL) — retry |
 | `expired` | Timelock already passed | Agent took too long — lock is refundable |
-| `Preimage not found` | Server preimage expired | PreimageStore TTL (5 min) exceeded |
+| `Preimage not found` | Server preimage expired | PreimageStore TTL (30 min) exceeded |
 | `post_data_hash_failed` | On-chain tx reverted | Check gas, contract state, network status |
 | `hash mismatch` | receiptHash != dataHash | Corrupted encrypted payload |
 
@@ -283,7 +283,7 @@ Prefer the chain with the most funds.`;
 
 For transient failures:
 1. **402 retry**: Automatic — x402 client retries with payment
-2. **Lock confirmation**: SDK polls with 3s intervals, up to 60s
+2. **Lock confirmation**: SDK polls with 3s intervals, up to 4 min (EVM) / 3 min (Solana)
 3. **Claim after confirmation**: Background polling with 3s intervals, up to 3 minutes
 4. **Solana confirmation**: Falls back to `getSignatureStatuses` on timeout
 
