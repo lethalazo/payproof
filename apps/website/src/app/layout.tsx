@@ -23,6 +23,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://payproof.so"),
+  icons: { icon: "/favicon.svg" },
   title: "Payproof — The Trustless Payment Protocol for Autonomous Agents",
   description:
     "Atomic data-for-payment via HTLC. The preimage that unlocks payment IS the encryption key. Built on Circle Arc, powered by USDC. SDK ready.",
