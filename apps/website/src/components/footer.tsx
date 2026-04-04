@@ -1,7 +1,5 @@
 const footerLinks = [
   { label: "Protocol", href: "/whitepaper/" },
-  { label: "GitHub", href: "https://github.com/lethalazo/payproof" },
-  { label: "SDK Docs", href: "https://github.com/lethalazo/payproof#sdk-packages" },
 ];
 
 const footerLinkClass = "text-sm opacity-70 hover:opacity-100 transition-opacity";

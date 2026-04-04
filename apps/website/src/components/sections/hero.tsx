@@ -198,9 +198,9 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3, ease: EASE_OUT_EXPO }}
           >
-            The HTLC preimage that unlocks payment{" "}
-            <strong className="italic">is</strong> the encryption key for the
-            data. Neither party can cheat.
+            Agents pay for data and services without trusting anyone.
+            Cryptographic guarantees replace terms of service. Payment and
+            delivery are mathematically atomic.
           </motion.p>
 
           <motion.div
@@ -210,9 +210,6 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.45, ease: EASE_OUT_EXPO }}
           >
             <Button href="/whitepaper/">Read the Whitepaper</Button>
-            <Button variant="secondary" href="https://github.com/lethalazo/payproof">
-              View on GitHub
-            </Button>
           </motion.div>
 
           <motion.div

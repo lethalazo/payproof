@@ -13,7 +13,6 @@ const navLinks = [
 
 const secondaryLinks = [
   { label: "Whitepaper", href: "/whitepaper/" },
-  { label: "GitHub", href: "https://github.com/lethalazo/payproof", external: true },
 ];
 
 const linkClass = "font-sans text-sm text-muted-foreground transition-colors hover:text-foreground";
@@ -55,8 +54,6 @@ export function Nav() {
             <a
               key={link.href}
               href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
               className={linkClass}
             >
               {link.label}
@@ -99,8 +96,6 @@ export function Nav() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  target={"external" in link && link.external ? "_blank" : undefined}
-                  rel={"external" in link && link.external ? "noopener noreferrer" : undefined}
                   className={linkClass}
                 >
                   {link.label}

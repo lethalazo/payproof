@@ -124,7 +124,7 @@ const supportedChains: SupportedChain[] = [
   {
     initial: "A",
     name: "Arc Testnet",
-    scheme: "HTLC (Atomic)",
+    scheme: "Atomic",
     badgeVariant: "live",
     badgeLabel: "Live",
     fill: "bg-chain text-white",
@@ -140,7 +140,7 @@ const supportedChains: SupportedChain[] = [
   {
     initial: "S",
     name: "Solana Devnet",
-    scheme: "HTLC (Atomic)",
+    scheme: "Atomic",
     badgeVariant: "ready",
     badgeLabel: "SDK Ready",
     fill: "bg-crypto text-white",
@@ -148,7 +148,7 @@ const supportedChains: SupportedChain[] = [
   {
     initial: "A",
     name: "Arc Mainnet",
-    scheme: "HTLC",
+    scheme: "Atomic",
     badgeVariant: "coming",
     badgeLabel: "Coming Soon",
     fill: "bg-chain/20 text-chain",
@@ -156,7 +156,7 @@ const supportedChains: SupportedChain[] = [
   {
     initial: "E",
     name: "Ethereum",
-    scheme: "HTLC",
+    scheme: "Atomic",
     badgeVariant: "planned",
     badgeLabel: "Planned",
     fill: "bg-muted-foreground text-white",

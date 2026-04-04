@@ -17,14 +17,14 @@ const steps = [
     label: "Lock",
     color: "agent",
     description:
-      "Agent escrows USDC in an on-chain HTLC against the merchant\u2019s hashlock.",
+      "Agent escrows USDC in a smart contract as payment commitment.",
   },
   {
     num: 2,
     label: "Encrypt",
     color: "merchant",
     description:
-      "Merchant encrypts data with the preimage as AES-256-GCM key, commits hash on-chain.",
+      "Merchant encrypts the data and commits proof of delivery on-chain.",
   },
   {
     num: 3,
@@ -38,14 +38,14 @@ const steps = [
     label: "Claim",
     color: "payment",
     description:
-      "Merchant reveals the preimage to claim payment \u2014 the key is now public.",
+      "Merchant claims payment \u2014 which simultaneously reveals the decryption key.",
   },
   {
     num: 5,
     label: "Decrypt",
     color: "crypto",
     description:
-      "Agent reads the preimage from chain and decrypts. Payment and data delivery: atomic.",
+      "Agent decrypts the data. Payment and delivery: one atomic action.",
   },
 ] as const;
 

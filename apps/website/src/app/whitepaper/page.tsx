@@ -4,7 +4,7 @@ import { Nav } from "@/components/nav";
 export const metadata: Metadata = {
   title: "Payproof Protocol Whitepaper — Atomic Data-for-Payment via HTLC",
   description:
-    "Technical specification for the Payproof protocol. Atomic data-for-payment using HTLC preimage as AES-256-GCM encryption key.",
+    "Technical specification for trustless atomic payments between autonomous agents.",
 };
 
 function Section({
@@ -88,12 +88,11 @@ export default function WhitepaperPage() {
             {/* ── Abstract ── */}
             <Section id="abstract" title="Abstract">
               <P>
-                Payproof is an atomic data-for-payment protocol designed for
-                autonomous AI agent commerce. It leverages Hash Time-Locked
-                Contracts (HTLCs) with a novel cryptographic construction: the
-                32-byte preimage that unlocks escrowed payment simultaneously
-                serves as the AES-256-GCM symmetric encryption key for the
-                purchased data. This creates a trustless exchange where the
+                Payproof is a permissionless payment protocol for autonomous
+                AI agent commerce -- trustless, atomic, and built for machine
+                speed. It uses a novel cryptographic construction where the
+                secret that unlocks escrowed payment simultaneously serves as
+                the encryption key for the purchased data. This creates a trustless exchange where the
                 merchant can only receive payment by revealing the decryption key
                 on-chain, and the agent can only obtain the decryption key after
                 the merchant claims the escrow. The protocol defines a 7-state
@@ -1723,15 +1722,7 @@ export async function GET() {
                 </li>
                 <li>
                   Uniswap Labs. &quot;Permit2.&quot; Signature-based token
-                  approval mechanism used by the x402 exact scheme.{" "}
-                  <a
-                    href="https://github.com/Uniswap/permit2"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-link underline underline-offset-2 hover:text-foreground transition-colors"
-                  >
-                    github.com/Uniswap/permit2
-                  </a>
+                  approval mechanism used by the x402 exact scheme.
                 </li>
                 <li>
                   Circle. &quot;USDC: A Fully Collateralized US Dollar
@@ -1772,15 +1763,7 @@ export async function GET() {
                   </a>
                 </li>
                 <li>
-                  Payproof Protocol Specification v1.{" "}
-                  <a
-                    href="https://github.com/lethalazo/payproof"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-link underline underline-offset-2 hover:text-foreground transition-colors"
-                  >
-                    github.com/lethalazo/payproof
-                  </a>
+                  Payproof Protocol Specification v1. Source code available on request.
                 </li>
               </ol>
             </Section>
@@ -1792,17 +1775,8 @@ export async function GET() {
                 Research.
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                This document is the canonical technical specification. For
-                implementation details, see the{" "}
-                <a
-                  href="https://github.com/lethalazo/payproof"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-link underline underline-offset-2 hover:text-foreground transition-colors"
-                >
-                  source repository
-                </a>
-                .
+                This document is the canonical technical specification. Source
+                code available on request.
               </p>
             </div>
           </article>

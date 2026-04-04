@@ -26,11 +26,11 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.svg" },
   title: "Payproof — The Trustless Payment Protocol for Autonomous Agents",
   description:
-    "Atomic data-for-payment via HTLC. The preimage that unlocks payment IS the encryption key. Built on Circle Arc, powered by USDC. SDK ready.",
+    "The permissionless payment protocol for autonomous agents. Trustless commerce at machine speed. Built on Circle Arc, powered by USDC.",
   openGraph: {
     title: "Payproof — Trustless Payments for Autonomous Agents",
     description:
-      "The only atomic data-for-payment protocol. The HTLC preimage IS the AES-256-GCM decryption key. Neither party can cheat.",
+      "Permissionless, trustless payments for autonomous agents. Atomic data-for-payment at machine speed.",
     url: "https://payproof.so",
     siteName: "Payproof",
     type: "website",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Payproof — Trustless Payments for Autonomous Agents",
     description:
-      "Atomic data-for-payment. The HTLC preimage IS the encryption key. Built on Arc, powered by USDC.",
+      "Permissionless payments for autonomous agents. Trustless. Atomic. Built on Arc, powered by USDC.",
   },
 };
 

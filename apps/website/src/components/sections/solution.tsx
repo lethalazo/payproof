@@ -6,9 +6,6 @@ import { SectionWrapper } from "@/components/section-wrapper";
 import { GradientOrbs } from "@/components/animations/gradient-orbs";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
-/* ------------------------------------------------------------------ */
-/*  Animated "preimage = key" illustration                              */
-/* ------------------------------------------------------------------ */
 
 function KeyIllustration() {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,7 +35,7 @@ function KeyIllustration() {
           </filter>
         </defs>
 
-        {/* ---- Center preimage hex ---- */}
+        {/* ---- Center secret ---- */}
         <motion.rect
           x={220}
           y={30}
@@ -68,7 +65,7 @@ function KeyIllustration() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          0x7f3a...d2e8
+          Secret
         </motion.text>
 
         <motion.text
@@ -82,10 +79,10 @@ function KeyIllustration() {
           animate={isInView ? { opacity: 0.7 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          32-byte preimage
+          Cryptographic secret
         </motion.text>
 
-        {/* ---- Left fork: HTLC Escrow (payment / emerald) ---- */}
+        {/* ---- Left fork: Payment Escrow ---- */}
         <motion.path
           d="M 250 80 C 250 115, 160 125, 160 155"
           stroke="var(--payment)"
@@ -140,7 +137,7 @@ function KeyIllustration() {
           <circle cx={160} cy={189} r={3.5} fill="var(--payment)" fillOpacity={0.8} />
         </motion.g>
 
-        {/* "HTLC Escrow" label */}
+        {/* Escrow label */}
         <motion.text
           x={160}
           y={225}
@@ -153,7 +150,7 @@ function KeyIllustration() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 2.2 }}
         >
-          HTLC Escrow
+          Payment Escrow
         </motion.text>
 
         {/* USDC badge */}
@@ -187,7 +184,7 @@ function KeyIllustration() {
           </text>
         </motion.g>
 
-        {/* ---- Right fork: AES-256-GCM (crypto / violet) ---- */}
+        {/* ---- Right fork: Data Encryption ---- */}
         <motion.path
           d="M 350 80 C 350 115, 440 125, 440 155"
           stroke="var(--crypto)"
@@ -241,7 +238,7 @@ function KeyIllustration() {
           <circle cx={440} cy={189} r={3.5} fill="var(--crypto)" fillOpacity={0.8} />
         </motion.g>
 
-        {/* "AES-256-GCM" label */}
+        {/* Encryption label */}
         <motion.text
           x={440}
           y={225}
@@ -254,7 +251,7 @@ function KeyIllustration() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 2.2 }}
         >
-          AES-256-GCM
+          Data Encryption
         </motion.text>
 
         {/* Data badge */}
@@ -373,10 +370,10 @@ export function Solution() {
       <div className="relative mx-auto max-w-7xl px-6">
         {/* Heading */}
         <h2 className="font-serif text-3xl md:text-5xl text-center text-foreground">
-          The key that pays is the key that decrypts.
+          Atomic by construction.
         </h2>
         <p className="font-serif italic text-xl md:text-2xl text-muted-foreground text-center mt-4">
-          One secret. Two purposes. Zero trust.
+          Payment and data delivery happen as one indivisible action. Neither party can cheat.
         </p>
 
         {/* Animated illustration */}
@@ -392,9 +389,9 @@ export function Solution() {
           animate={summaryInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
         >
-          The merchant can only get paid by revealing the decryption key. The
-          agent can only decrypt after confirming receipt. Atomic by
-          construction.
+          The merchant can only receive payment by delivering the data. The
+          agent can only access the data by confirming payment. No trust
+          required.
         </motion.p>
       </div>
     </SectionWrapper>

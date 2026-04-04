@@ -27,7 +27,7 @@ const phases: Phase[] = [
     current: true,
     dotColor: "bg-payment border-payment",
     items: [
-      "7-state HTLC on Arc Testnet",
+      "Atomic payment protocol on Arc Testnet",
       "SDK published",
       "Reference marketplace",
       "Full protocol spec",
