@@ -106,8 +106,8 @@ export default function WhitepaperPage() {
                 scheme, replacing trusted facilitators with cryptographic
                 atomicity. The protocol is chain-agnostic by design, with a
                 reference implementation deployed on EVM (Circle Arc) and
-                architecture ready for Solana. All hashlock operations use
-                SHA-256 for cross-chain compatibility.
+                architecture ready for Solana. All escrow operations use
+                cryptographic hashes for cross-chain compatibility.
               </P>
             </Section>
 
@@ -164,9 +164,9 @@ export default function WhitepaperPage() {
                   direct
                 </C>{" "}
                 scheme, we replace the trust-based facilitator with
-                cryptographic atomicity. The HTLC preimage that unlocks payment{" "}
+                cryptographic atomicity. The escrow secret that unlocks payment{" "}
                 <span className="font-medium text-foreground">is</span> the
-                AES-256-GCM encryption key for the data. This construction makes
+                encryption key for the data. This construction makes
                 payment and data delivery inseparable: the merchant reveals the
                 key to get paid, and the agent obtains the key to decrypt. No
                 facilitator. No trust. No recourse needed, because neither party
@@ -190,7 +190,7 @@ export default function WhitepaperPage() {
                 2.1 The 7-State Machine
               </H3>
               <P>
-                The Payproof HTLC is a deterministic finite automaton with seven
+                The Payproof escrow is a deterministic finite automaton with seven
                 states and six transitions. Every lock begins in the{" "}
                 <C>
                   Empty
@@ -262,7 +262,7 @@ export default function WhitepaperPage() {
                         <C>Claimed</C>
                       </td>
                       <td className="py-2 pr-4">4</td>
-                      <td className="py-2">Merchant claimed USDC by revealing preimage on-chain</td>
+                      <td className="py-2">Merchant claimed USDC by revealing secret on-chain</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
@@ -346,7 +346,7 @@ export default function WhitepaperPage() {
                       <td className="py-2 pr-4">Anyone</td>
                       <td className="py-2 pr-4">
                         <C>state == Confirmed</C>,{" "}
-                        <C>SHA-256(preimage) == hashlock</C>
+                        <C>hash(secret) == commitment</C>
                       </td>
                       <td className="py-2">Token transferred to recipient</td>
                     </tr>
@@ -408,11 +408,11 @@ export default function WhitepaperPage() {
                 </C>
                 , computed as{" "}
                 <C>
-                  block.timestamp + CONFIRMATION_WINDOW
+                  block.timestamp + confirmation window
                 </C>{" "}
-                where{" "}
+                where the{" "}
                 <C>
-                  CONFIRMATION_WINDOW = 120s
+                  confirmation window = 120s
                 </C>
                 . This gives the agent 2 minutes to verify the encrypted data
                 and submit{" "}
@@ -512,10 +512,10 @@ export default function WhitepaperPage() {
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
-                        <C>hashlock</C>
+                        <C>commitment</C>
                       </td>
                       <td className="py-2 pr-4">bytes32</td>
-                      <td className="py-2">SHA-256(preimage) commitment</td>
+                      <td className="py-2">Cryptographic commitment</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
@@ -536,14 +536,14 @@ export default function WhitepaperPage() {
                         <C>dataHash</C>
                       </td>
                       <td className="py-2 pr-4">bytes32</td>
-                      <td className="py-2">SHA-256(ciphertext) committed by merchant</td>
+                      <td className="py-2">Data hash committed by merchant</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
                         <C>receiptHash</C>
                       </td>
                       <td className="py-2 pr-4">bytes32</td>
-                      <td className="py-2">SHA-256(ciphertext) confirmed by agent</td>
+                      <td className="py-2">Data hash confirmed by agent</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
@@ -563,37 +563,33 @@ export default function WhitepaperPage() {
               title="3. Cryptographic Construction"
             >
               <H3>
-                3.1 The Preimage-as-Key Insight
+                3.1 The Secret-as-Key Insight
               </H3>
               <P>
                 The central cryptographic innovation of Payproof is the dual use
-                of the HTLC preimage. In a standard HTLC, the preimage is a
-                random secret whose hash serves as a commitment -- the party who
-                knows the preimage can unlock escrowed funds by revealing it
+                of the escrow secret. In a standard atomic escrow, the secret is a
+                random value whose hash serves as a commitment -- the party who
+                knows the secret can unlock escrowed funds by revealing it
                 on-chain. Payproof extends this by using the same 32-byte
-                preimage as the symmetric encryption key for the data being
+                secret as the symmetric encryption key for the data being
                 purchased.
               </P>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 This creates an elegant coupling: the merchant generates a
-                cryptographically random 32-byte preimage using{" "}
+                cryptographically random 32-byte secret, computes{" "}
                 <C>
-                  crypto.getRandomValues(new Uint8Array(32))
+                  commitment = hash(secret)
                 </C>
-                , computes{" "}
-                <C>
-                  hashlock = SHA-256(preimage)
-                </C>
-                , and shares the hashlock with the agent in the 402 response. The
-                agent locks funds against this hashlock. The merchant then
-                encrypts the data using the preimage as the AES-256-GCM key and
+                , and shares the commitment with the agent in the 402 response. The
+                agent locks funds against this commitment. The merchant then
+                encrypts the data using the secret as the encryption key and
                 commits the ciphertext hash on-chain. To get paid, the merchant
                 must call{" "}
                 <C>
-                  claim(preimage)
+                  claim(secret)
                 </C>{" "}
-                -- revealing the preimage in a public on-chain event. The agent
-                reads this event and uses the preimage to decrypt the data.
+                -- revealing the secret in a public on-chain event. The agent
+                reads this event and uses the secret to decrypt the data.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 The atomicity guarantee follows from the structure: the merchant{" "}
@@ -607,28 +603,28 @@ export default function WhitepaperPage() {
               </p>
 
               <H3>
-                3.2 SHA-256 for Cross-Chain Hashlocks
+                3.2 Cross-Chain Hash Compatibility
               </H3>
               <P>
-                All hash operations in Payproof use SHA-256, not keccak256. This
-                is a deliberate design choice for cross-chain compatibility.
-                While keccak256 is the native hash function on EVM chains,
-                SHA-256 is universally available -- including on Solana, where
-                keccak256 is not natively supported. By using SHA-256, the same
-                hashlock can be verified on any chain, enabling future cross-chain
-                atomic swaps where an agent on one chain pays a merchant on
-                another.
+                All hash operations in Payproof use a universally supported
+                cryptographic hash function, deliberately chosen for cross-chain
+                compatibility rather than any chain-native alternative. The
+                chosen hash is available on every target blockchain -- including
+                EVM chains, Solana, Cosmos, and Bitcoin. By using a
+                chain-agnostic hash, the same commitment can be verified on any
+                chain, enabling future cross-chain atomic swaps where an agent
+                on one chain pays a merchant on another.
               </P>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 Three hash operations are defined in the protocol:
               </p>
               <ul className="list-disc pl-6 mt-2 space-y-1 font-sans text-base leading-relaxed text-foreground/80">
                 <li>
-                  <span className="font-medium text-foreground">Hashlock:</span>{" "}
+                  <span className="font-medium text-foreground">Commitment:</span>{" "}
                   <C>
-                    SHA-256(preimage)
+                    hash(secret)
                   </C>{" "}
-                  -- the HTLC commitment, verified on-chain during{" "}
+                  -- the escrow commitment, verified on-chain during{" "}
                   <C>
                     claim()
                   </C>
@@ -636,7 +632,7 @@ export default function WhitepaperPage() {
                 <li>
                   <span className="font-medium text-foreground">dataHash:</span>{" "}
                   <C>
-                    SHA-256(ciphertext_bytes)
+                    hash(ciphertext_bytes)
                   </C>{" "}
                   -- the merchant&apos;s commitment to the encrypted data
                 </li>
@@ -646,7 +642,7 @@ export default function WhitepaperPage() {
                   </span>{" "}
                   agent re-computes{" "}
                   <C>
-                    SHA-256(ciphertext_bytes)
+                    hash(ciphertext_bytes)
                   </C>{" "}
                   to confirm receipt -- must match{" "}
                   <C>
@@ -656,27 +652,19 @@ export default function WhitepaperPage() {
                 </li>
               </ul>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
-                On EVM, the{" "}
-                <C>
-                  sha256()
-                </C>{" "}
-                precompile (address 0x02) is used rather than the native{" "}
-                <C>
-                  keccak256
-                </C>{" "}
-                opcode. On Solana, SHA-256 is available as a native syscall.
+                The escrow contract uses standard cryptographic hash operations
+                available on all target chains.
               </p>
 
               <H3>
-                3.3 AES-256-GCM Encryption Parameters
+                3.3 Encryption Parameters
               </H3>
               <P>
-                The protocol uses AES-256-GCM (Galois/Counter Mode) for
-                authenticated encryption of the data payload. GCM provides both
-                confidentiality and integrity verification in a single pass,
-                which is critical: the agent must be able to verify that
-                decryption succeeded (the auth tag validates) before considering
-                the data authentic.
+                The protocol uses authenticated encryption for the data
+                payload. Authenticated encryption provides both confidentiality
+                and integrity verification in a single pass, which is critical:
+                the agent must be able to verify that decryption succeeded (the
+                auth tag validates) before considering the data authentic.
               </P>
               <div className="overflow-x-auto mt-4">
                 <table className="w-full border-collapse text-sm">
@@ -691,7 +679,7 @@ export default function WhitepaperPage() {
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Key</td>
                       <td className="py-2 pr-4">32 bytes (256 bits)</td>
-                      <td className="py-2">HTLC preimage</td>
+                      <td className="py-2">Escrow secret</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Nonce / IV</td>
@@ -701,7 +689,7 @@ export default function WhitepaperPage() {
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Auth tag</td>
                       <td className="py-2 pr-4">16 bytes (128 bits)</td>
-                      <td className="py-2">Generated by GCM, verified on decryption</td>
+                      <td className="py-2">Generated by encryption algorithm, verified on decryption</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Ciphertext</td>
@@ -718,18 +706,13 @@ export default function WhitepaperPage() {
               <P>
                 The merchant returns the encrypted data to the agent as a
                 structured payload over HTTP. The agent persists this payload
-                locally until the preimage is revealed on-chain.
+                locally until the secret is revealed on-chain.
               </P>
-              <div className="bg-[#1E1E2E] text-[#CDD6F4] rounded-xl p-5 font-mono text-sm overflow-x-auto mt-4">
-                <pre>
-{`interface EncryptedPayload {
-  encryptedBlob: string;  // base64-encoded ciphertext
-  nonce: string;          // hex (12 bytes = 24 hex chars)
-  authTag: string;        // hex (16 bytes = 32 hex chars)
-  dataHash: string;       // 0x-prefixed SHA-256 of ciphertext bytes
-}`}
-                </pre>
-              </div>
+              <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
+                The encrypted payload contains the ciphertext, a nonce, an
+                authentication tag, and a hash of the ciphertext for on-chain
+                verification.
+              </p>
 
               <H3>
                 3.5 Data Commitment Scheme
@@ -738,7 +721,7 @@ export default function WhitepaperPage() {
                 The data commitment scheme ensures the merchant cannot swap
                 encrypted data after committing. The merchant computes{" "}
                 <C>
-                  dataHash = SHA-256(ciphertext_bytes)
+                  dataHash = hash(ciphertext_bytes)
                 </C>{" "}
                 and posts this hash on-chain via{" "}
                 <C>
@@ -746,7 +729,7 @@ export default function WhitepaperPage() {
                 </C>
                 . The agent independently computes{" "}
                 <C>
-                  receiptHash = SHA-256(ciphertext_bytes)
+                  receiptHash = hash(ciphertext_bytes)
                 </C>{" "}
                 from the received encrypted payload. The{" "}
                 <C>
@@ -807,7 +790,7 @@ export default function WhitepaperPage() {
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4 font-medium text-foreground">Fake hash</td>
                       <td className="py-2 pr-4">Posts wrong dataHash</td>
-                      <td className="py-2 pr-4">SHA-256 mismatch, confirmReceipt reverts</td>
+                      <td className="py-2 pr-4">Hash mismatch, confirmReceipt reverts</td>
                       <td className="py-2">Agent does not confirm, treasury gets USDC</td>
                     </tr>
                     <tr className="border-b border-muted">
@@ -844,7 +827,7 @@ export default function WhitepaperPage() {
                 If the agent receives valid data but refuses to confirm,
                 the funds go to treasury -- not back to the agent. Strategic
                 non-confirmation yields no benefit to the agent: they lose the
-                payment amount and still cannot decrypt without the preimage.
+                payment amount and still cannot decrypt without the secret.
                 Rational agents always confirm valid data.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
@@ -919,9 +902,9 @@ export default function WhitepaperPage() {
                 </C>{" "}
                 following the x402 standard. These include the{" "}
                 <C>
-                  hashlock
+                  commitment
                 </C>{" "}
-                (SHA-256 of the server-generated preimage), the HTLC contract
+                (hash of the server-generated secret), the escrow contract
                 address, the payment amount in atomic USDC units, the network
                 identifier, and the protocol version.
               </P>
@@ -934,12 +917,12 @@ export default function WhitepaperPage() {
                 <C>
                   lockId
                 </C>
-                , approves the HTLC contract for the required USDC amount (if not
+                , approves the escrow contract for the required USDC amount (if not
                 already approved), and calls{" "}
                 <C>
                   lock()
                 </C>{" "}
-                on the HTLC contract with the hashlock from the 402 response and
+                on the escrow contract with the commitment from the 402 response and
                 a timelock of{" "}
                 <C>
                   now + 300s
@@ -960,10 +943,10 @@ export default function WhitepaperPage() {
                 <C>
                   lockId
                 </C>
-                , network, and hashlock. The merchant&apos;s middleware reads the lock
+                , network, and commitment. The merchant&apos;s middleware reads the lock
                 from the blockchain and verifies: the recipient matches the
-                merchant&apos;s address, the amount meets the price, the hashlock
-                matches the preimage the merchant holds, and the timelock has
+                merchant&apos;s address, the amount meets the price, the commitment
+                matches the secret the merchant holds, and the timelock has
                 sufficient remaining time (at least 120 seconds margin).
               </p>
 
@@ -972,10 +955,10 @@ export default function WhitepaperPage() {
                   Steps 7-10: Encryption and commitment.
                 </span>{" "}
                 The merchant&apos;s middleware calls the route handler to get the
-                plaintext data, encrypts it using AES-256-GCM with the preimage
-                as the key and a fresh random 12-byte nonce, computes{" "}
+                plaintext data, encrypts it using authenticated encryption with the secret
+                as the key and a fresh random nonce, computes{" "}
                 <C>
-                  dataHash = SHA-256(ciphertext)
+                  dataHash = hash(ciphertext)
                 </C>
                 , and posts this hash on-chain via{" "}
                 <C>
@@ -1025,7 +1008,7 @@ export default function WhitepaperPage() {
                 </span>{" "}
                 The agent independently computes{" "}
                 <C>
-                  receiptHash = SHA-256(ciphertext)
+                  receiptHash = hash(ciphertext)
                 </C>{" "}
                 from the received encrypted data and calls{" "}
                 <C>
@@ -1049,18 +1032,18 @@ export default function WhitepaperPage() {
                 </span>{" "}
                 The merchant calls{" "}
                 <C>
-                  claim(lockId, preimage)
+                  claim(lockId, secret)
                 </C>
                 . The contract verifies{" "}
                 <C>
-                  SHA-256(preimage) == hashlock
+                  hash(secret) == commitment
                 </C>
                 , transfers the escrowed USDC to the merchant, and emits a{" "}
                 <C>
-                  Claimed(lockId, preimage)
+                  Claimed(lockId, secret)
                 </C>{" "}
                 event. The agent reads this event from the blockchain, extracts
-                the preimage, and uses it as the AES-256-GCM key to decrypt the
+                the secret, and uses it as the encryption key to decrypt the
                 stored{" "}
                 <C>
                   EncryptedPayload
@@ -1145,7 +1128,7 @@ export default function WhitepaperPage() {
                 <C>
                   LockStore
                 </C>{" "}
-                for later decryption if the preimage is revealed through other
+                for later decryption if the secret is revealed through other
                 means.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
@@ -1160,7 +1143,7 @@ export default function WhitepaperPage() {
                 <C>
                   watchForClaim()
                 </C>{" "}
-                timed out. The preimage is permanently available in on-chain event
+                timed out. The secret is permanently available in on-chain event
                 logs. The agent can replay event logs later and decrypt using the
                 persisted{" "}
                 <C>
@@ -1202,7 +1185,7 @@ export default function WhitepaperPage() {
                   on-chain state machine
                 </span>{" "}
                 itself: funds cannot be double-spent, each state transition is
-                exclusive, timelocks ensure bounded commitment, and preimage
+                exclusive, timelocks ensure bounded commitment, and secret
                 verification ensures the merchant can only claim with the real
                 key. The second layer is{" "}
                 <span className="font-medium text-foreground">
@@ -1241,20 +1224,14 @@ export default function WhitepaperPage() {
                 7.1 EVM Implementation
               </H3>
               <P>
-                The reference EVM implementation is{" "}
-                <C>
-                  HTLC.sol
-                </C>
-                , a Solidity contract of approximately 102 lines. It implements
-                the full 7-state machine with the following security properties:
-                checks-effects-interactions pattern prevents reentrancy, there are
-                no admin functions (no owner, no pause, no upgrade on the core
-                contract), the treasury address is immutable (set in the
-                constructor), and the contract uses the{" "}
-                <C>
-                  sha256()
-                </C>{" "}
-                precompile for all hash operations. Token handling uses{" "}
+                The reference EVM implementation is a compact Solidity escrow
+                contract. It implements the full 7-state machine with the
+                following security properties: checks-effects-interactions
+                pattern prevents reentrancy, there are no admin functions (no
+                owner, no pause, no upgrade on the core contract), the treasury
+                address is immutable (set in the constructor), and the contract
+                uses standard cryptographic hash operations available on all
+                target chains. Token handling uses{" "}
                 <C>
                   IERC20.transferFrom
                 </C>{" "}
@@ -1304,20 +1281,21 @@ export default function WhitepaperPage() {
                 <C>
                   Claimed
                 </C>{" "}
-                event is critical: it includes the preimage, making the
+                event is critical: it includes the secret, making the
                 decryption key permanently available on-chain.
               </p>
 
               <H3>
-                7.2 Chain-Agnostic Design via SHA-256
+                7.2 Chain-Agnostic Design
               </H3>
               <P>
                 The protocol is chain-agnostic by construction. The use of
-                SHA-256 (rather than chain-native hash functions) means the same
-                hashlock can be verified on any blockchain that supports SHA-256
-                -- which includes EVM chains, Solana, Cosmos chains, Bitcoin, and
-                others. The state machine, game theory, and cryptographic
-                construction are independent of the execution environment.
+                a universally supported cryptographic hash (rather than
+                chain-native hash functions) means the same commitment can be
+                verified on any blockchain -- including EVM chains, Solana,
+                Cosmos chains, Bitcoin, and others. The state machine, game
+                theory, and cryptographic construction are independent of the
+                execution environment.
               </P>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 The primary deployment target is Circle&apos;s Arc chain, chosen for
@@ -1333,40 +1311,29 @@ export default function WhitepaperPage() {
               </H3>
               <P>
                 The SDK architecture includes a Solana client module with wallet
-                management and HTLC interaction primitives. A Solana program
+                management and escrow interaction primitives. A Solana program
                 (Anchor) implementing the same 7-state machine is included in the
-                repository. The SHA-256 hashlock design ensures that a single
-                hashlock can span both EVM and Solana locks, enabling future
+                repository. The chain-agnostic hash design ensures that a single
+                commitment can span both EVM and Solana locks, enabling future
                 cross-chain atomic swaps.
               </P>
 
               <H3>
-                7.4 PayproofRegistry for Upgrades
+                7.4 Protocol Registry for Upgrades
               </H3>
               <P>
-                The{" "}
-                <C>
-                  PayproofRegistry
-                </C>{" "}
-                contract maps protocol versions to HTLC contract addresses,
-                enabling protocol upgrades without breaking existing locks. The
-                server includes{" "}
-                <C>
-                  extra.protocolVersion
-                </C>{" "}
-                in the 402 response, and the client SDK checks version
-                compatibility before locking funds. Each registry entry contains
-                the contract address, an active flag, and a deployment timestamp.
-                The registry is owner-controlled and deployed per chain.
+                The protocol registry maps version numbers to escrow contract
+                addresses, enabling protocol upgrades without breaking existing
+                locks. The server includes the protocol version in the 402
+                response, and the client SDK checks version compatibility before
+                locking funds. Each registry entry contains the contract address,
+                an active flag, and a deployment timestamp. The registry is
+                owner-controlled and deployed per chain.
               </P>
-              <div className="bg-[#1E1E2E] text-[#CDD6F4] rounded-xl p-5 font-mono text-sm overflow-x-auto mt-4">
-                <pre>
-{`// PayproofRegistry interface
-getVersion(version) → { contractAddress, active, deployedAt }
-getLatestVersion() → (version, address)
-latestVersion() → version`}
-                </pre>
-              </div>
+              <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
+                The protocol registry maps version numbers to escrow contract
+                addresses, enabling upgrades without breaking existing locks.
+              </p>
             </Section>
 
             {/* ── 8. SDK & Developer Experience ── */}
@@ -1383,26 +1350,23 @@ latestVersion() → version`}
                   <C>
                     @payproof/contracts
                   </C>{" "}
-                  -- shared types, ABIs, chain configurations, and the{" "}
-                  <C>
-                    LockState
-                  </C>{" "}
-                  enum
+                  -- shared types, ABIs, chain configurations, and the
+                  protocol state enum
                 </li>
                 <li>
                   <C>
                     @payproof/client
                   </C>{" "}
                   -- agent-side SDK including x402 handling, EVM/Solana wallet
-                  management, HTLC interaction, AES-256-GCM decryption, the
-                  LockStore, and auto-refund sweeping
+                  management, escrow interaction, decryption, lock
+                  tracking, and auto-refund sweeping
                 </li>
                 <li>
                   <C>
                     @payproof/server
                   </C>{" "}
                   -- merchant-side SDK including lock verification, data
-                  encryption, on-chain commitment, claim orchestration, preimage
+                  encryption, on-chain commitment, claim orchestration, secret
                   management, and Next.js middleware adapter
                 </li>
               </ul>
@@ -1421,7 +1385,7 @@ latestVersion() → version`}
 {`// Agent — create a configured client
 const client = createPayproofClient({
   evmPrivateKey: "0x...",
-  htlcContractAddress: "0x...",
+  escrowContractAddress: "0x...",
   rpcUrl: "https://rpc.testnet.arc.network",
 });
 
@@ -1429,7 +1393,7 @@ const client = createPayproofClient({
 const server = createPayproofServer({
   merchantEvmAddress: "0x...",
   merchantEvmPrivateKey: "0x...",
-  htlcContractAddress: "0x...",
+  escrowContractAddress: "0x...",
 });`}
                 </pre>
               </div>
@@ -1530,7 +1494,7 @@ export async function GET() {
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Atomicity</td>
                       <td className="py-2 pr-4">None -- pay then hope</td>
-                      <td className="py-2">Full -- preimage links payment to decryption</td>
+                      <td className="py-2">Full -- secret links payment to decryption</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Trusted third party</td>
@@ -1565,7 +1529,7 @@ export async function GET() {
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Cross-chain</td>
                       <td className="py-2 pr-4">Single chain</td>
-                      <td className="py-2">SHA-256 hashlocks span chains</td>
+                      <td className="py-2">Commitments span chains</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1617,7 +1581,7 @@ export async function GET() {
                 <span className="font-medium text-foreground">
                   Phase 1: Foundation (current).
                 </span>{" "}
-                Full 7-state HTLC with AES-256-GCM encryption deployed on Arc
+                Full 7-state atomic escrow with authenticated encryption deployed on Arc
                 Testnet. x402 exact scheme compatibility on Base Sepolia. Three
                 SDK packages extracted and published. Reference marketplace
                 application with AI agent integration, paywalled APIs, and
@@ -1629,10 +1593,10 @@ export async function GET() {
                   Phase 2: Ecosystem growth.
                 </span>{" "}
                 Mainnet deployment on Arc. Atomic guarantees applied to the exact
-                scheme (preimage revelation on top of Permit2 facilitator flow).
+                scheme (secret revelation on top of Permit2 facilitator flow).
                 Onboarding tools including key generation CLI, balance tracking
                 dashboard, and wallet setup wizard. Agent tool integrations for
-                MCP (Claude), OpenAI function calling, and LangChain.
+                MCP (Claude), OpenAI function calling, and LlamaIndex.
               </p>
 
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
@@ -1652,7 +1616,7 @@ export async function GET() {
                 <span className="font-medium text-foreground">
                   Phase 4: Protocol standardization.
                 </span>{" "}
-                Cross-chain atomic swaps using shared hashlocks across EVM and
+                Cross-chain atomic swaps using shared commitments across EVM and
                 Solana. Subscription and streaming payment channels for real-time
                 data feeds. Zero-knowledge privacy layer for shielded transaction
                 amounts and anonymous agent identities. Formal specification of
@@ -1679,7 +1643,7 @@ export async function GET() {
                 <li>
                   Poon, J. and Dryja, T. &quot;The Bitcoin Lightning Network:
                   Scalable Off-Chain Instant Payments.&quot; 2016. Hash
-                  Time-Locked Contracts (HTLCs) as the foundational primitive for
+                  Time-Locked Contracts as the foundational primitive for
                   trustless conditional payments.
                 </li>
                 <li>
@@ -1697,7 +1661,7 @@ export async function GET() {
                 </li>
                 <li>
                   FIPS 180-4. &quot;Secure Hash Standard (SHS).&quot; SHA-256
-                  specification used for all hashlock and data commitment
+                  specification used for all commitment and data hash
                   operations.{" "}
                   <a
                     href="https://csrc.nist.gov/publications/detail/fips/180/4/final"
@@ -1710,7 +1674,7 @@ export async function GET() {
                 </li>
                 <li>
                   ERC-20 Token Standard. OpenZeppelin implementation used for
-                  USDC token handling in HTLC escrow.{" "}
+                  USDC token handling in escrow.{" "}
                   <a
                     href="https://eips.ethereum.org/EIPS/eip-20"
                     target="_blank"
@@ -1751,7 +1715,7 @@ export async function GET() {
                 </li>
                 <li>
                   Solana Foundation. &quot;Solana: A New Architecture for a High
-                  Performance Blockchain.&quot; Target chain for cross-chain HTLC
+                  Performance Blockchain.&quot; Target chain for cross-chain escrow
                   deployment via Anchor framework.{" "}
                   <a
                     href="https://solana.com/solana-whitepaper.pdf"

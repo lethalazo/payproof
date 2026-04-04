@@ -41,7 +41,7 @@ const phases: Phase[] = [
     items: [
       "Arc mainnet deployment",
       "CLI tooling",
-      "MCP + OpenAI + LangChain integrations",
+      "MCP + OpenAI + LlamaIndex integrations",
     ],
   },
 ];

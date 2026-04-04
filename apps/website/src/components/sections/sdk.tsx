@@ -81,7 +81,7 @@ export function SDK() {
         <div className="flex gap-3 justify-center mt-12 flex-wrap">
           <Badge variant="coming">MCP Tools</Badge>
           <Badge variant="coming">OpenAI Functions</Badge>
-          <Badge variant="coming">LangChain</Badge>
+          <Badge variant="coming">LlamaIndex</Badge>
         </div>
       </div>
     </SectionWrapper>
