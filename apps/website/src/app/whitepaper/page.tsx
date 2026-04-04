@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 
 export const metadata: Metadata = {
-  title: "Payproof Protocol Whitepaper — Atomic Data-for-Payment via HTLC",
+  title: "Payproof Protocol Specification — Trustless Atomic Payments",
   description:
     "Technical specification for trustless atomic payments between autonomous agents.",
 };

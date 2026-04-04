@@ -1,9 +1,3 @@
-const footerLinks = [
-  { label: "Protocol", href: "/whitepaper/" },
-];
-
-const footerLinkClass = "text-sm opacity-70 hover:opacity-100 transition-opacity";
-
 export function Footer() {
   return (
     <footer className="bg-foreground text-primary-foreground">
@@ -12,23 +6,15 @@ export function Footer() {
           <div>
             <span className="font-serif text-lg">Payproof</span>
             <p className="text-sm opacity-60 mt-2">
-              Atomic payments for autonomous agents.
+              Permissionless payments for autonomous agents.
             </p>
             <p className="text-xs opacity-40 mt-1">v0.1</p>
           </div>
 
           <div className="flex flex-col gap-2">
-            {footerLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className={footerLinkClass}
-              >
-                {link.label}
-              </a>
-            ))}
+            <a href="/whitepaper/" className="text-sm opacity-70 hover:opacity-100 transition-opacity">
+              Protocol
+            </a>
           </div>
 
           <div className="flex flex-col gap-2 md:items-end">

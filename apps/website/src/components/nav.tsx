@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "Protocol", href: "#protocol" },
+  { label: "Problem", href: "#protocol" },
   { label: "SDK", href: "#sdk" },
   { label: "Chains", href: "#chains" },
   { label: "Roadmap", href: "#roadmap" },

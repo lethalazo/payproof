@@ -47,7 +47,7 @@ export function SDK() {
           <code className="font-mono text-code-foreground bg-code-bg px-1.5 py-0.5 rounded">
             fetch()
           </code>
-          . Your server sees route handlers. The 14-step protocol is invisible.
+          . Your server sees route handlers. The entire protocol is invisible.
         </p>
 
         {/* Two-column code layout */}
