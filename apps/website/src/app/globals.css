@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  /* Base */
+  --background: #FAF8F5;
+  --foreground: #1A1A1A;
+  --muted: #E8E4DF;
+  --muted-foreground: #6B6560;
+
+  /* Protocol color system */
+  --agent: #6366F1;
+  --agent-light: #EEF2FF;
+  --merchant: #F97316;
+  --merchant-light: #FFF7ED;
+  --chain: #0EA5E9;
+  --chain-light: #F0F9FF;
+  --payment: #10B981;
+  --payment-light: #ECFDF5;
+  --crypto: #8B5CF6;
+  --crypto-light: #F5F3FF;
+  --problem: #EF4444;
+  --problem-light: #FEF2F2;
+
+  /* UI */
+  --primary: #1A1A1A;
+  --primary-foreground: #FAF8F5;
+  --code-bg: #1E1E2E;
+  --code-foreground: #CDD6F4;
+  --link: #6366F1;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-agent: var(--agent);
+  --color-agent-light: var(--agent-light);
+  --color-merchant: var(--merchant);
+  --color-merchant-light: var(--merchant-light);
+  --color-chain: var(--chain);
+  --color-chain-light: var(--chain-light);
+  --color-payment: var(--payment);
+  --color-payment-light: var(--payment-light);
+  --color-crypto: var(--crypto);
+  --color-crypto-light: var(--crypto-light);
+  --color-problem: var(--problem);
+  --color-problem-light: var(--problem-light);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-code-bg: var(--code-bg);
+  --color-code-foreground: var(--code-foreground);
+  --color-link: var(--link);
+  --font-serif: var(--font-instrument-serif);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Floating orb animations */
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-15px, 10px) scale(0.95); }
+}
+
+@keyframes float-medium {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, 15px) scale(1.03); }
+}
+
+@keyframes float-fast {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(15px, -10px); }
+  75% { transform: translate(-10px, 20px); }
+}
+
+.animate-float-slow { animation: float-slow 12s ease-in-out infinite; }
+.animate-float-medium { animation: float-medium 8s ease-in-out infinite; }
+.animate-float-fast { animation: float-fast 6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-float-medium,
+  .animate-float-fast {
+    animation: none;
+  }
+}

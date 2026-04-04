@@ -5,6 +5,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter marketplace dev",
+    "dev:website": "pnpm --filter website dev",
     "clean": "pnpm -r clean",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit/",
