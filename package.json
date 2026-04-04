@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm -r build",
-    "build:site": "cd apps/website && npm install && npx next build && cd ../.. && rm -rf out && cp -r apps/website/out .",
+    "build:site": "pnpm --filter website build && rm -rf out && cp -r apps/website/out .",
     "dev": "pnpm --filter marketplace dev",
     "dev:website": "pnpm --filter website dev",
     "clean": "pnpm -r clean",
