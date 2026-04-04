@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "pnpm -r build",
-    "build:site": "pnpm --filter website build && rm -rf out && cp -r apps/website/out .",
+    "build": "pnpm --filter website build && rm -rf out && cp -r apps/website/out .",
+    "build:all": "pnpm -r build",
     "dev": "pnpm --filter marketplace dev",
     "dev:website": "pnpm --filter website dev",
     "clean": "pnpm -r clean",
