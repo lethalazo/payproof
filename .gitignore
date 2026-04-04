@@ -50,3 +50,4 @@ dist/
 
 # package manager
 node_modules/
+.github/
