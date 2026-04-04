@@ -235,8 +235,9 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <div className="hidden lg:flex w-[45%] items-center justify-center">
+        <div className="w-full lg:w-[45%] flex items-center justify-center">
           <motion.div
+            className="w-full max-w-sm lg:max-w-none"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4, ease: EASE_OUT_EXPO }}
