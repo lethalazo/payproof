@@ -49,9 +49,9 @@ export interface PayproofServerConfig {
   hostedFacilitatorUrl?: string;
   /** Treasury address for unresolvable disputes. */
   treasuryAddress?: string;
-  /** PreimageStore — defaults to MemoryPreimageStore. */
+  /** PreimageStore - defaults to MemoryPreimageStore. */
   preimageStore?: PreimageStore;
-  /** LedgerStore — defaults to MemoryLedgerStore. */
+  /** LedgerStore - defaults to MemoryLedgerStore. */
   ledgerStore?: LedgerStore;
   /** Modular chain configuration. If provided, takes precedence over top-level fields. */
   chains?: ServerChainsConfig;
@@ -84,7 +84,7 @@ export interface PayproofServer {
 }
 
 /**
- * Resolve server config — maps new `chains` config to flat fields for backwards compat.
+ * Resolve server config - maps new `chains` config to flat fields for backwards compat.
  */
 function resolveServerConfig(config: PayproofServerConfig) {
   const merchantEvmAddress = config.chains?.evm?.merchantAddress ?? config.merchantEvmAddress ?? "";

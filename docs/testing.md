@@ -28,7 +28,7 @@ pnpm install   # vitest and dotenv are in root devDependencies
 pnpm test
 
 # Individual suites
-pnpm test:unit          # Unit tests — no network calls, fast (~5s)
+pnpm test:unit          # Unit tests - no network calls, fast (~5s)
 pnpm test:evm           # Arc Testnet HTLC + Registry (~3-10 min)
 pnpm test:facilitator   # Facilitator integration (~3-5 min)
 pnpm test:e2e           # Full encrypted flow with dev server (~5 min)
@@ -59,7 +59,7 @@ tests/
 
 - **Sequential**: All tests run in a single fork (`singleFork: true` in vitest config) to prevent EVM nonce conflicts.
 - **Unique lockIds**: Each test generates a fresh random lockId to avoid collisions.
-- **Real testnets**: EVM, facilitator, and E2E tests hit actual testnets — no mocking.
+- **Real testnets**: EVM, facilitator, and E2E tests hit actual testnets - no mocking.
 
 ## Timeout Table
 

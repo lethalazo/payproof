@@ -59,10 +59,10 @@ struct Lock {
     address recipient;    // merchant who receives payment
     address token;        // ERC-20 token (USDC)
     uint256 amount;       // payment amount
-    bytes32 hashlock;     // SHA-256(preimage) — set at lock time
-    uint256 timelock;     // absolute timestamp — agent can refund after this
+    bytes32 hashlock;     // SHA-256(preimage) - set at lock time
+    uint256 timelock;     // absolute timestamp - agent can refund after this
     uint256 dataDeadline; // set when postDataHash is called (now + 120s)
-    bytes32 dataHash;     // SHA-256(ciphertext) — merchant's commitment
+    bytes32 dataHash;     // SHA-256(ciphertext) - merchant's commitment
     bytes32 receiptHash;  // agent's confirmation (must match dataHash)
     State state;          // current state (0-6)
 }
@@ -99,7 +99,7 @@ struct Lock {
 - **Caller**: Anyone (typically merchant)
 - **Preconditions**: `state == Confirmed`, `sha256(preimage) == hashlock`
 - **Effect**: Transfers USDC to merchant, transitions to `Claimed`
-- **Emits**: `Claimed(lockId, preimage)` — preimage is now public on-chain
+- **Emits**: `Claimed(lockId, preimage)` - preimage is now public on-chain
 
 #### `refund(lockId)`
 - **Caller**: Anyone (typically agent)
@@ -129,7 +129,7 @@ struct Lock {
 
 ### Security Properties
 
-- **No reentrancy**: Checks-effects-interactions pattern — state is updated before token transfers
+- **No reentrancy**: Checks-effects-interactions pattern - state is updated before token transfers
 - **No admin functions**: HTLC has no owner, no pause, no upgrade on the core contract
 - **Immutable treasury**: Set in constructor, cannot be changed
 - **SHA-256**: Uses `sha256()` precompile, not `keccak256()`
@@ -197,7 +197,7 @@ export enum LockState {
 ### HTLC.sol (Arc Testnet)
 
 ```bash
-# Using Foundry — constructor takes treasury address
+# Using Foundry - constructor takes treasury address
 forge create contracts/HTLC.sol:HTLC \
   --constructor-args <TREASURY_ADDRESS> \
   --rpc-url https://rpc.testnet.arc.network \

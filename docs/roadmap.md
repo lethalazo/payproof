@@ -13,7 +13,7 @@ Atomic data-for-payment protocol implemented and running on live testnets:
 
 ### Enhance Exact Scheme with Atomic Guarantees
 
-Apply Payproof's encryption + confirmation protocol on top of x402's exact scheme. Agents using Base/exact currently trust the facilitator — with this enhancement, they get the same atomic guarantees as the direct scheme. The facilitator handles the Permit2 broadcast, but data delivery still requires preimage revelation.
+Apply Payproof's encryption + confirmation protocol on top of x402's exact scheme. Agents using Base/exact currently trust the facilitator - with this enhancement, they get the same atomic guarantees as the direct scheme. The facilitator handles the Permit2 broadcast, but data delivery still requires preimage revelation.
 
 ### Mainnet Deployments
 
@@ -37,8 +37,8 @@ Pre-built tools for popular AI frameworks:
 ### Agentic Facilitator
 
 Smart contract-driven facilitator that replaces x402.org for the exact scheme:
-- Permissionless — anyone can run a facilitator node
-- On-chain verification — facilitator behavior is auditable
+- Permissionless - anyone can run a facilitator node
+- On-chain verification - facilitator behavior is auditable
 - No single point of failure or censorship
 
 ### Opt-in Data Catalog
@@ -74,7 +74,7 @@ Agents pay with any token, automatic swap to merchant's preferred token:
 
 ### Cross-Chain Atomic Swaps
 
-Agent on one EVM chain pays merchant on another — trustless cross-chain data-for-payment:
+Agent on one EVM chain pays merchant on another - trustless cross-chain data-for-payment:
 - Shared hashlock across chains
 - Relay network for cross-chain event propagation
 - Same game-theoretic guarantees as single-chain protocol

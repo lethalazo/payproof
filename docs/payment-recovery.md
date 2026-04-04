@@ -9,14 +9,14 @@ The 7-state HTLC protocol has well-defined recovery paths for every failure scen
 **State**: Lock stays `Locked`
 **Recovery**: Agent calls `refund()` after timelock expires (300s)
 
-The merchant received the request but never responded — server crash, deliberate ghosting, or network failure. The lock remains in `Locked` state, and the timelock guarantees the agent can recover funds.
+The merchant received the request but never responded - server crash, deliberate ghosting, or network failure. The lock remains in `Locked` state, and the timelock guarantees the agent can recover funds.
 
 ### 2. Agent Never Confirms Receipt
 
 **State**: Lock stays `DataPosted`
 **Recovery**: Anyone calls `sendToTreasury()` after dataDeadline expires (120s from data post)
 
-The merchant posted data and committed the dataHash on-chain, but the agent didn't confirm. This could be a client crash, network failure, or deliberate non-confirmation. Funds go to the neutral treasury — the merchant doesn't get paid, but the agent doesn't get a free refund either.
+The merchant posted data and committed the dataHash on-chain, but the agent didn't confirm. This could be a client crash, network failure, or deliberate non-confirmation. Funds go to the neutral treasury - the merchant doesn't get paid, but the agent doesn't get a free refund either.
 
 ### 3. postDataHash Transaction Fails
 
@@ -48,7 +48,7 @@ The `createNextMiddleware` wraps each request in `runWithRequestContext({ signal
 - **Before lock verification**: No on-chain state changes, nothing to recover
 - **After verification, before postDataHash**: Lock stays `Locked`, agent refunds after timelock
 - **After postDataHash**: Lock is `DataPosted`, treasury fallback applies
-- **After EncryptedPayload sent**: Normal flow continues — agent may or may not confirm
+- **After EncryptedPayload sent**: Normal flow continues - agent may or may not confirm
 
 ## Defense Layers
 
@@ -118,8 +118,8 @@ Time 0s        lock() called
 
 | Timer | Duration | Starts at | Protects |
 |-------|----------|-----------|----------|
-| **timelock** | 300s (5 min) | `lock()` | Agent — can refund if merchant never responds |
-| **dataDeadline** | +120s (2 min) | `postDataHash()` | Merchant — if agent ghosts, treasury gets funds (not agent) |
+| **timelock** | 300s (5 min) | `lock()` | Agent - can refund if merchant never responds |
+| **dataDeadline** | +120s (2 min) | `postDataHash()` | Merchant - if agent ghosts, treasury gets funds (not agent) |
 
 The 120-second confirmation window (`CONFIRMATION_WINDOW` constant) starts when the merchant posts the dataHash. This gives the agent time to verify the encrypted data, compute the receiptHash, and submit the `confirmReceipt` transaction.
 
@@ -127,7 +127,7 @@ The 120-second confirmation window (`CONFIRMATION_WINDOW` constant) starts when 
 
 The treasury address is set at contract deployment and is immutable. It serves as a neutral dispute resolution mechanism:
 
-- **Neither party benefits from defection**: If the merchant posts data but the agent doesn't confirm, funds go to treasury — not back to the agent
+- **Neither party benefits from defection**: If the merchant posts data but the agent doesn't confirm, funds go to treasury - not back to the agent
 - **No incentive for strategic non-confirmation**: The agent can't get a free refund after receiving data
 - **Bounded loss**: The merchant loses the sale but doesn't subsidize the agent
 - **Transparent**: Treasury transactions are on-chain and auditable

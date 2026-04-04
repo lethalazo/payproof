@@ -1,4 +1,4 @@
-// Shared data generators — extracted from route handlers
+// Shared data generators - extracted from route handlers
 
 export function generateWeatherData() {
   return {
@@ -120,7 +120,7 @@ export function generateSentimentData() {
           confidence: +(0.55 + Math.random() * 0.4).toFixed(2),
           social_volume_change_pct: +((Math.random() - 0.3) * 40).toFixed(1),
           whale_activity:
-            "Accumulation detected — 3 wallets moved 500+ BTC to cold storage",
+            "Accumulation detected - 3 wallets moved 500+ BTC to cold storage",
           key_narratives: [
             "ETF inflow momentum continues",
             "Halving cycle thesis still dominant",
@@ -132,7 +132,7 @@ export function generateSentimentData() {
           signal: pick(),
           confidence: +(0.5 + Math.random() * 0.4).toFixed(2),
           social_volume_change_pct: +((Math.random() - 0.4) * 30).toFixed(1),
-          whale_activity: "Mixed — large sells offset by DeFi re-staking",
+          whale_activity: "Mixed - large sells offset by DeFi re-staking",
           key_narratives: [
             "L2 ecosystem growth accelerating",
             "Blob fee revenue scaling",
@@ -153,10 +153,10 @@ export function generateSentimentData() {
         },
       ],
       macro_factors: {
-        fed_sentiment: "Hawkish hold — rate cuts delayed to H2",
+        fed_sentiment: "Hawkish hold - rate cuts delayed to H2",
         dollar_index_trend: "Strengthening",
         treasury_yield_10y: +(4.2 + Math.random() * 0.5).toFixed(2) + "%",
-        risk_appetite: "Moderate — equity markets near ATH but bonds cautious",
+        risk_appetite: "Moderate - equity markets near ATH but bonds cautious",
       },
     },
   };

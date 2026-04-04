@@ -24,11 +24,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://payproof.so"),
   icons: { icon: "/favicon.svg" },
-  title: "Payproof — The Trustless Payment Protocol for Autonomous Agents",
+  title: "Payproof - The Trustless Payment Protocol for Autonomous Agents",
   description:
     "The permissionless payment protocol for autonomous agents. Trustless commerce at machine speed. Built on Circle Arc, powered by USDC.",
   openGraph: {
-    title: "Payproof — Trustless Payments for Autonomous Agents",
+    title: "Payproof - Trustless Payments for Autonomous Agents",
     description:
       "Permissionless, trustless payments for autonomous agents. Atomic data-for-payment at machine speed.",
     url: "https://payproof.so",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Payproof — Trustless Payments for Autonomous Agents",
+    title: "Payproof - Trustless Payments for Autonomous Agents",
     description:
       "Permissionless payments for autonomous agents. Trustless. Atomic. Built on Arc, powered by USDC.",
   },

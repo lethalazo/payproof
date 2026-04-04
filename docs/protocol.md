@@ -4,7 +4,7 @@
 
 ## Overview
 
-Payproof enables trustless machine-to-machine data purchases. An AI agent pays for data, and a merchant delivers it — atomically. Neither party can cheat.
+Payproof enables trustless machine-to-machine data purchases. An AI agent pays for data, and a merchant delivers it - atomically. Neither party can cheat.
 
 **Key insight**: The HTLC preimage that unlocks payment **is** the AES-256-GCM encryption key for the data. The merchant can only get paid by revealing the decryption key on-chain. The agent can only decrypt the data after confirming receipt on-chain.
 
@@ -30,7 +30,7 @@ Agent                          Merchant                        Blockchain
   │  5. Retry GET /data           │                                │
   │  + X-PAYMENT header {lockId}  │                                │
   │──────────────────────────────>│                                │
-  │                               │  6. verify() — read lock       │
+  │                               │  6. verify() - read lock       │
   │                               │     on-chain, check recipient, │
   │                               │     amount, hashlock, timelock │
   │                               │───────────────────────────────>│
@@ -46,7 +46,7 @@ Agent                          Merchant                        Blockchain
   │                               │     dataHash = SHA-256(cipher) │
   │                               │                                │
   │                               │  9. postDataHash(lockId,       │
-  │                               │     dataHash) — on-chain tx    │
+  │                               │     dataHash) - on-chain tx    │
   │                               │───────────────────────────────>│
   │                               │         10. State: DataPosted  │
   │                               │             dataDeadline set   │
@@ -79,9 +79,9 @@ Agent                          Merchant                        Blockchain
 
 From the developer's perspective:
 
-**Agent** — calls `fetch(url)`, gets plaintext response. Steps 1-5 and 11-14 are invisible.
+**Agent** - calls `fetch(url)`, gets plaintext response. Steps 1-5 and 11-14 are invisible.
 
-**Merchant** — returns data from route handler. Steps 6-10 and 14 are handled by middleware.
+**Merchant** - returns data from route handler. Steps 6-10 and 14 are handled by middleware.
 
 ```typescript
 // Agent: one line
@@ -91,7 +91,7 @@ const data = await response.json(); // plaintext, fully decrypted
 // Merchant: three lines of config
 const server = createPayproofServer({ merchantEvmAddress, merchantEvmPrivateKey, htlcContractAddress });
 const middleware = createNextMiddleware(server, routes);
-// Route handlers return data normally — encryption is automatic
+// Route handlers return data normally - encryption is automatic
 ```
 
 ## State Machine
@@ -132,8 +132,8 @@ Empty ──> Locked ──> DataPosted ──> Refunded (impossible*)
 
 | Timelock | Duration | Set when | Purpose |
 |----------|----------|----------|---------|
-| `timelock` | 300s (5 min) | `lock()` called | Overall deadline — agent can refund if merchant never responds |
-| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window — agent must confirm receipt within 120s or funds go to treasury |
+| `timelock` | 300s (5 min) | `lock()` called | Overall deadline - agent can refund if merchant never responds |
+| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window - agent must confirm receipt within 120s or funds go to treasury |
 
 The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestamp when the merchant posts the data hash. This gives the agent time to verify the encrypted data and confirm receipt.
 
@@ -148,14 +148,14 @@ The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestam
 | **Garbage data** | Posts correct hash of garbage ciphertext | Agent can verify decrypted data quality | Agent may choose not to confirm → treasury |
 
 **Key properties**:
-- No party can profit by cheating — at worst, disputed funds go to a neutral treasury
+- No party can profit by cheating - at worst, disputed funds go to a neutral treasury
 - The merchant must reveal the preimage (encryption key) to get paid
 - The agent must confirm data receipt before the merchant can claim
 - Both parties have a bounded time commitment (5 minutes max)
 
 ## Treasury Mechanism
 
-The treasury address is a neutral third party set at contract deployment (immutable). When a dispute is unresolvable — merchant posted data but agent didn't confirm — the funds go to treasury rather than either party. This eliminates the incentive for strategic non-confirmation by the agent.
+The treasury address is a neutral third party set at contract deployment (immutable). When a dispute is unresolvable - merchant posted data but agent didn't confirm - the funds go to treasury rather than either party. This eliminates the incentive for strategic non-confirmation by the agent.
 
 ## Cryptographic Details
 
@@ -163,15 +163,15 @@ The treasury address is a neutral third party set at contract deployment (immuta
 
 - **Key**: HTLC preimage (32 bytes / 256 bits)
 - **Nonce/IV**: Cryptographically random (12 bytes)
-- **Auth tag**: 128 bits (16 bytes) — integrity verification
+- **Auth tag**: 128 bits (16 bytes) - integrity verification
 - **Ciphertext**: Variable length, same as plaintext
 
 The preimage is generated server-side via `crypto.getRandomValues(new Uint8Array(32))`.
 
 ### SHA-256 Hashing
 
-- **Hashlock**: `SHA-256(preimage)` — used for HTLC verification
-- **dataHash**: `SHA-256(ciphertext_bytes)` — commitment to encrypted data
+- **Hashlock**: `SHA-256(preimage)` - used for HTLC verification
+- **dataHash**: `SHA-256(ciphertext_bytes)` - commitment to encrypted data
 - **receiptHash**: Agent re-computes `SHA-256(ciphertext_bytes)` to confirm receipt
 
 SHA-256 is used (not keccak256) for cross-chain compatibility between EVM and Solana.
@@ -191,19 +191,19 @@ interface EncryptedPayload {
 
 The protocol rides on HTTP, using the [x402](https://www.x402.org/) standard for payment negotiation:
 
-1. **Initial request** — Agent sends `GET /api/provider/weather`
-2. **402 response** — Server returns `HTTP 402 Payment Required` with `PaymentRequirements` including:
-   - `scheme: "direct"` — HTLC payment
-   - `network: "eip155:5042002"` — Arc Testnet (or `solana:devnet`)
-   - `amount` — USDC in atomic units (e.g., `"1000"` = $0.001)
-   - `extra.hashlock` — SHA-256 of server-generated preimage
-   - `extra.htlcContract` — HTLC contract address
-   - `extra.timelockSeconds` — 300
-   - `extra.protocolVersion` — 1
-3. **Lock** — Agent locks funds on-chain using the provided hashlock
-4. **Retry** — Agent re-sends request with `X-PAYMENT` header containing `{ lockId, network, hashlock }`
-5. **Encrypted response** — Server returns `HTTP 200` with `x-payproof-encrypted: true` header and `EncryptedPayload` body
-6. **On-chain confirmation + claim + decrypt** — handled asynchronously by SDK
+1. **Initial request** - Agent sends `GET /api/provider/weather`
+2. **402 response** - Server returns `HTTP 402 Payment Required` with `PaymentRequirements` including:
+   - `scheme: "direct"` - HTLC payment
+   - `network: "eip155:5042002"` - Arc Testnet (or `solana:devnet`)
+   - `amount` - USDC in atomic units (e.g., `"1000"` = $0.001)
+   - `extra.hashlock` - SHA-256 of server-generated preimage
+   - `extra.htlcContract` - HTLC contract address
+   - `extra.timelockSeconds` - 300
+   - `extra.protocolVersion` - 1
+3. **Lock** - Agent locks funds on-chain using the provided hashlock
+4. **Retry** - Agent re-sends request with `X-PAYMENT` header containing `{ lockId, network, hashlock }`
+5. **Encrypted response** - Server returns `HTTP 200` with `x-payproof-encrypted: true` header and `EncryptedPayload` body
+6. **On-chain confirmation + claim + decrypt** - handled asynchronously by SDK
 
 ## Protocol Versioning
 

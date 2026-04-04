@@ -283,7 +283,7 @@ Check USDC balance across all supported chains.
       "address": "0x...",
       "usdc_balance": "5.250000",
       "payment_scheme": "direct",
-      "note": "USDC is native gas token — no separate gas needed"
+      "note": "USDC is native gas token - no separate gas needed"
     }
   ]
 }
@@ -418,7 +418,7 @@ Refund an expired HTLC lock to recover funds.
 ```json
 {
   "success": false,
-  "error": "Timelock has not expired yet — 142s remaining",
+  "error": "Timelock has not expired yet - 142s remaining",
   "lockId": "0xabc...",
   "expiresAt": "2026-02-28T07:05:00.000Z"
 }

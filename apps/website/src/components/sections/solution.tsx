@@ -95,7 +95,7 @@ function KeyIllustration() {
           transition={{ duration: 1, delay: 0.8, ease: "easeInOut" }}
         />
 
-        {/* Traveling dot — left */}
+        {/* Traveling dot - left */}
         <motion.circle
           r={4}
           fill="var(--payment)"
@@ -197,7 +197,7 @@ function KeyIllustration() {
           transition={{ duration: 1, delay: 0.8, ease: "easeInOut" }}
         />
 
-        {/* Traveling dot — right */}
+        {/* Traveling dot - right */}
         <motion.circle
           r={4}
           fill="var(--crypto)"

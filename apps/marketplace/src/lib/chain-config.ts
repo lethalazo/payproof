@@ -17,7 +17,7 @@ export function getEnabledChains(): ChainConfig[] {
   return chains;
 }
 
-/** Get enabled chains that use the "direct" (HTLC) scheme — these support refunds. */
+/** Get enabled chains that use the "direct" (HTLC) scheme - these support refunds. */
 export function getDirectChains(): ChainConfig[] {
   return getEnabledChains().filter((c) => c.scheme === "direct");
 }

@@ -6,7 +6,7 @@ export interface ChainConfig {
   id: string;
   /** Human-readable label, e.g. "Arc Testnet". */
   label: string;
-  /** Chain family — determines which HTLC client to use. */
+  /** Chain family - determines which HTLC client to use. */
   family: "evm" | "solana";
   /** Payment scheme: "direct" (HTLC) or "exact" (Permit2/facilitator). */
   scheme: "direct" | "exact";
@@ -18,7 +18,7 @@ export interface ChainConfig {
   color?: string;
 }
 
-/** Central chain registry — single source of truth for all supported chains. */
+/** Central chain registry - single source of truth for all supported chains. */
 export const CHAIN_REGISTRY: Record<string, ChainConfig> = {
   "eip155:84532": {
     id: "eip155:84532",

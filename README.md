@@ -8,10 +8,10 @@ Payproof is an atomic data-for-payment protocol for AI agent commerce. The HTLC 
 
 AI agents need to buy data and services autonomously. Current solutions (x402 "exact" scheme) require trust:
 
-- **Payment before delivery** — agent pays, then hopes the merchant sends data
-- **No defect protection** — once the payment is signed, it's broadcasted regardless of data quality
-- **Centralized facilitators** — x402.org must be trusted not to steal or censor
-- **No dispute resolution** — if something goes wrong, funds are lost
+- **Payment before delivery** - agent pays, then hopes the merchant sends data
+- **No defect protection** - once the payment is signed, it's broadcasted regardless of data quality
+- **Centralized facilitators** - x402.org must be trusted not to steal or censor
+- **No dispute resolution** - if something goes wrong, funds are lost
 
 ## The Solution
 
@@ -21,7 +21,7 @@ Payproof's atomic data-for-payment protocol eliminates trust from the equation:
 2. **Merchant encrypts** data with the preimage (the HTLC secret) as the AES-256-GCM key
 3. **Merchant commits** the hash of the encrypted data on-chain
 4. **Agent verifies** the commitment and confirms receipt on-chain
-5. **Merchant claims** payment by revealing the preimage — which the agent uses to decrypt the data
+5. **Merchant claims** payment by revealing the preimage - which the agent uses to decrypt the data
 
 The preimage = encryption key = payment. Atomic. One reveals the other.
 
@@ -55,8 +55,8 @@ Agent                           Merchant                    Chain
 
 | Chain | Scheme | Token | Gas | Status |
 |-------|--------|-------|-----|--------|
-| **Arc Testnet** | `direct` (HTLC) | USDC | USDC (native) | Primary — full atomic protocol |
-| **Base Sepolia** | `exact` (Permit2) | USDC | ETH | x402 compatibility — trust-based |
+| **Arc Testnet** | `direct` (HTLC) | USDC | USDC (native) | Primary - full atomic protocol |
+| **Base Sepolia** | `exact` (Permit2) | USDC | ETH | x402 compatibility - trust-based |
 
 Arc uses the atomic HTLC protocol. Base Sepolia uses x402's "exact" scheme via the hosted facilitator for backward compatibility.
 
@@ -77,13 +77,13 @@ Open [http://localhost:3000](http://localhost:3000). Set a research goal and bud
 
 ## SDK Packages
 
-### `@payproof/client` — Agent SDK
+### `@payproof/client` - Agent SDK
 
 ```typescript
 import { createPayproofClient } from "@payproof/client";
 
 const client = createPayproofClient({
-  // Modular chain config — only enable what you need
+  // Modular chain config - only enable what you need
   chains: {
     evm: {
       privateKey: "...",
@@ -104,12 +104,12 @@ console.log(client.getEnabledChains()); // [{ id: "eip155:5042002", ... }]
 
 const fetch = client.getFetchWithPayment();
 const response = await fetch("https://api.example.com/weather");
-const data = await response.json(); // plaintext — decryption is automatic
+const data = await response.json(); // plaintext - decryption is automatic
 ```
 
 Legacy top-level config (`evmPrivateKey`) still works for backwards compatibility.
 
-### `@payproof/server` — Merchant SDK
+### `@payproof/server` - Merchant SDK
 
 ```typescript
 import { createPayproofServer } from "@payproof/server";
@@ -131,10 +131,10 @@ const middleware = createNextMiddleware(server, {
     description: "Weather data",
   },
 });
-// Route handlers return data normally — encryption + on-chain settlement is automatic
+// Route handlers return data normally - encryption + on-chain settlement is automatic
 ```
 
-### `@payproof/contracts` — Shared Types & ABIs
+### `@payproof/contracts` - Shared Types & ABIs
 
 ```typescript
 import { HTLC_ABI, REGISTRY_ABI, LockState, USDC_ASSETS, arcTestnet } from "@payproof/contracts";
@@ -146,15 +146,15 @@ import type { EncryptedPayload, PendingLock, PaymentRequirements } from "@paypro
 ```
 payproof/
 ├── packages/
-│   ├── client/                    # @payproof/client — agent-side SDK
+│   ├── client/                    # @payproof/client - agent-side SDK
 │   │   └── src/
 │   │       ├── client.ts          #   createPayproofClient() factory
 │   │       ├── x402/              #   x402 integration + encrypted response handling
 │   │       ├── evm/               #   Arc wallet + HTLC client (lock, confirm, watch)
 │   │       ├── solana/            #   Solana wallet + HTLC client (SDK-level, not enabled in demo)
 │   │       ├── crypto/            #   AES-256-GCM decryption
-│   │       └── stores/            #   LockStore — pending payment tracking
-│   ├── server/                    # @payproof/server — merchant-side SDK
+│   │       └── stores/            #   LockStore - pending payment tracking
+│   ├── server/                    # @payproof/server - merchant-side SDK
 │   │   └── src/
 │   │       ├── gate.ts            #   createPayproofServer() factory
 │   │       ├── facilitator.ts     #   verify, postDataHash, claimAfterConfirmation
@@ -163,7 +163,7 @@ payproof/
 │   │       ├── stores/            #   PreimageStore, LedgerStore
 │   │       ├── adapters/          #   Next.js middleware adapter
 │   │       └── context/           #   AbortSignal request context
-│   └── contracts/                 # @payproof/contracts — shared types & ABIs
+│   └── contracts/                 # @payproof/contracts - shared types & ABIs
 │       └── src/
 │           ├── htlc-abi.ts        #   HTLC_ABI, REGISTRY_ABI, LockState enum
 │           ├── types.ts           #   EncryptedPayload, PendingLock, PaymentRequirements
@@ -185,25 +185,25 @@ payproof/
 
 | | x402 Exact | Payproof Direct |
 |---|---|---|
-| **Atomicity** | None — payment before data | Atomic — preimage = encryption key |
-| **Trust model** | Trust facilitator + merchant | Trustless — cryptographic guarantees |
-| **Dispute resolution** | None | Treasury mechanism — neutral third party |
+| **Atomicity** | None - payment before data | Atomic - preimage = encryption key |
+| **Trust model** | Trust facilitator + merchant | Trustless - cryptographic guarantees |
+| **Dispute resolution** | None | Treasury mechanism - neutral third party |
 
 Payproof uses x402 as the transport layer (HTTP 402, payment headers) but replaces trust with cryptography for the `direct` scheme.
 
 ## Documentation
 
-- **[Protocol Specification (chain-agnostic)](PROTOCOL.md)** — Pure HTLC protocol spec: state machine, operations, conformance checklist
-- **[Protocol + Transport](docs/protocol.md)** — 14-step flow including x402 HTTP transport, game theory, cryptographic details
-- **[Architecture Overview](docs/architecture.md)** — System design, package structure, data flow
-- **[Smart Contracts](docs/smart-contracts.md)** — 7-state HTLC, EVM, PayproofRegistry
-- **[Payment System](docs/payment-system.md)** — Three schemes, encrypted flow, preimage management
-- **[Payment Recovery](docs/payment-recovery.md)** — Failure modes, defense layers, treasury safety net
-- **[SDK Guide](docs/sdk-guide.md)** — Merchant + agent integration with code examples
-- **[API Reference](docs/api-reference.md)** — HTTP endpoints, agent tools, response schemas
-- **[Deployment Guide](docs/deployment.md)** — Environment setup, contract deployment, key management
-- **[Competitive Analysis](docs/competitive-analysis.md)** — x402, Coinbase, Circle, Arc positioning
-- **[Roadmap](docs/roadmap.md)** — Enhancement roadmap with concrete milestones
+- **[Protocol Specification (chain-agnostic)](PROTOCOL.md)** - Pure HTLC protocol spec: state machine, operations, conformance checklist
+- **[Protocol + Transport](docs/protocol.md)** - 14-step flow including x402 HTTP transport, game theory, cryptographic details
+- **[Architecture Overview](docs/architecture.md)** - System design, package structure, data flow
+- **[Smart Contracts](docs/smart-contracts.md)** - 7-state HTLC, EVM, PayproofRegistry
+- **[Payment System](docs/payment-system.md)** - Three schemes, encrypted flow, preimage management
+- **[Payment Recovery](docs/payment-recovery.md)** - Failure modes, defense layers, treasury safety net
+- **[SDK Guide](docs/sdk-guide.md)** - Merchant + agent integration with code examples
+- **[API Reference](docs/api-reference.md)** - HTTP endpoints, agent tools, response schemas
+- **[Deployment Guide](docs/deployment.md)** - Environment setup, contract deployment, key management
+- **[Competitive Analysis](docs/competitive-analysis.md)** - x402, Coinbase, Circle, Arc positioning
+- **[Roadmap](docs/roadmap.md)** - Enhancement roadmap with concrete milestones
 
 ## License
 

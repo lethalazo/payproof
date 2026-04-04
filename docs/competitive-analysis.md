@@ -2,7 +2,7 @@
 
 ## The Agentic Payments Landscape
 
-AI agents are becoming autonomous economic actors — buying data, consuming APIs, paying for compute. The market for machine-to-machine payments is emerging, and several players are positioning to own the infrastructure layer.
+AI agents are becoming autonomous economic actors - buying data, consuming APIs, paying for compute. The market for machine-to-machine payments is emerging, and several players are positioning to own the infrastructure layer.
 
 Payproof's thesis: **the payment layer for agents must be trustless**. Agents can't call customer support. They can't dispute charges. They need cryptographic guarantees, not terms of service.
 
@@ -33,7 +33,7 @@ The [x402 protocol](https://www.x402.org/) defines a standard for machine-to-mac
 
 ### Payproof's Position
 
-Payproof uses x402 as the **transport layer** — the 402 response, payment headers, and client/server negotiation. But for the `direct` scheme, we replace the trust-based facilitator with cryptographic atomicity. The preimage that unlocks payment IS the decryption key. No facilitator needed.
+Payproof uses x402 as the **transport layer** - the 402 response, payment headers, and client/server negotiation. But for the `direct` scheme, we replace the trust-based facilitator with cryptographic atomicity. The preimage that unlocks payment IS the decryption key. No facilitator needed.
 
 We also support the exact scheme on Base Sepolia for backward compatibility with the existing x402 ecosystem.
 
@@ -41,7 +41,7 @@ We also support the exact scheme on Base Sepolia for backward compatibility with
 
 ### Position
 
-Coinbase is building the agent infrastructure stack: Base chain, CDP wallet infrastructure, AgentKit for agent-blockchain interaction, and the x402 protocol. Their network effects are significant — Base has ecosystem momentum, CDP simplifies wallet management, and x402 is becoming a de facto standard.
+Coinbase is building the agent infrastructure stack: Base chain, CDP wallet infrastructure, AgentKit for agent-blockchain interaction, and the x402 protocol. Their network effects are significant - Base has ecosystem momentum, CDP simplifies wallet management, and x402 is becoming a de facto standard.
 
 ### Technical Edge
 
@@ -49,7 +49,7 @@ The exact scheme provides simplicity (no on-chain escrow, just signed approvals)
 
 ### Payproof's Position
 
-We don't compete with Coinbase's infrastructure — we build on top of it. Payproof supports the exact scheme for Base Sepolia compatibility AND offers the superior direct scheme for chains that support it. Merchants and agents can use both, choosing trust-for-simplicity or cryptography-for-guarantees per transaction.
+We don't compete with Coinbase's infrastructure - we build on top of it. Payproof supports the exact scheme for Base Sepolia compatibility AND offers the superior direct scheme for chains that support it. Merchants and agents can use both, choosing trust-for-simplicity or cryptography-for-guarantees per transaction.
 
 ## Circle
 
@@ -69,25 +69,25 @@ Payproof builds ON Circle's stack. We use USDC as the payment token, Arc as the 
 
 ### Advantages
 
-- **USDC-native gas**: No volatile token needed for gas fees — agents only need USDC
+- **USDC-native gas**: No volatile token needed for gas fees - agents only need USDC
 - **Sub-second finality**: Fast enough for real-time micropayments
 - **Institutional backing**: Circle's credibility and regulatory compliance
 - **EVM compatible**: Existing Solidity contracts deploy directly
 
 ### Payproof's Position
 
-Arc is the primary chain for Payproof's direct scheme. USDC-native gas eliminates the need for a separate volatile token, simplifying agent operations and making micropayments practical. The same HTLC protocol is designed to extend to additional EVM chains — same state machine, same game theory, same cryptographic guarantees.
+Arc is the primary chain for Payproof's direct scheme. USDC-native gas eliminates the need for a separate volatile token, simplifying agent operations and making micropayments practical. The same HTLC protocol is designed to extend to additional EVM chains - same state machine, same game theory, same cryptographic guarantees.
 
 ## Payproof's Unique Edge
 
 1. **Only solution with atomic data-for-payment**: The HTLC preimage IS the AES-256-GCM encryption key. No other protocol links payment revelation to data decryption.
 
-2. **Game-theoretic guarantees**: No rational actor can cheat profitably. Disputed funds go to a neutral treasury — neither party benefits from defection.
+2. **Game-theoretic guarantees**: No rational actor can cheat profitably. Disputed funds go to a neutral treasury - neither party benefits from defection.
 
 3. **Non-custodial, no trusted facilitator**: For the direct scheme, funds are locked in on-chain escrow. No third party holds or routes payments.
 
 4. **Multi-chain EVM support**: Same protocol across EVM chains. Same developer experience, same security model.
 
-5. **x402 compatible**: Not trying to replace the standard — extending it. Merchants and agents that already use x402 can adopt Payproof's direct scheme incrementally.
+5. **x402 compatible**: Not trying to replace the standard - extending it. Merchants and agents that already use x402 can adopt Payproof's direct scheme incrementally.
 
 6. **SDK-first**: Agent sees `fetch() → plaintext`. Merchant returns data from route handler. The 14-step protocol is invisible to both parties.

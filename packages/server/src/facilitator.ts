@@ -68,9 +68,9 @@ export interface DirectTransferFacilitatorConfig {
   solanaUsdcMint?: string;
   /** Solana RPC URL. Defaults to devnet. */
   solanaRpcUrl?: string;
-  /** PreimageStore — defaults to MemoryPreimageStore if not provided. */
+  /** PreimageStore - defaults to MemoryPreimageStore if not provided. */
   preimageStore: PreimageStore;
-  /** LedgerStore — defaults to MemoryLedgerStore if not provided. */
+  /** LedgerStore - defaults to MemoryLedgerStore if not provided. */
   ledgerStore: LedgerStore;
 }
 
@@ -86,9 +86,9 @@ async function anchorDiscriminator(name: string): Promise<Buffer> {
  *
  * Atomic data-for-payment flow:
  *   1. Client locks funds in on-chain HTLC escrow
- *   2. verify() — reads the lock on-chain, checks recipient/amount/hashlock/timeout
- *   3. postDataHash() — merchant posts SHA-256 of encrypted data on-chain
- *   4. claimAfterConfirmation() — watches for agent's confirmReceipt, then claims with preimage
+ *   2. verify() - reads the lock on-chain, checks recipient/amount/hashlock/timeout
+ *   3. postDataHash() - merchant posts SHA-256 of encrypted data on-chain
+ *   4. claimAfterConfirmation() - watches for agent's confirmReceipt, then claims with preimage
  */
 /** Minimum seconds remaining on timelock for server to safely complete the flow. */
 const MIN_TIMELOCK_SAFETY_MARGIN = 120;
@@ -153,7 +153,7 @@ export class DirectTransferFacilitator {
 
   private getMerchantSolanaKeypair(): Keypair {
     const key = this.config.merchantSolanaPrivateKey;
-    if (!key) throw new Error("merchantSolanaPrivateKey not configured — required for Solana HTLC operations");
+    if (!key) throw new Error("merchantSolanaPrivateKey not configured - required for Solana HTLC operations");
     return Keypair.fromSecretKey(base58Decode(key));
   }
 
@@ -203,7 +203,7 @@ export class DirectTransferFacilitator {
   /**
    * settle() is kept for x402 resource server interface compatibility.
    * In the new atomic flow, actual claiming happens via claimAfterConfirmation().
-   * This method returns a success stub — the middleware handles the real flow.
+   * This method returns a success stub - the middleware handles the real flow.
    */
   async settle(
     paymentPayload: PaymentPayload,
@@ -234,7 +234,7 @@ export class DirectTransferFacilitator {
   }
 
   // ============================================================
-  //  Post Data Hash — merchant commits encrypted data hash on-chain
+  //  Post Data Hash - merchant commits encrypted data hash on-chain
   // ============================================================
 
   async postDataHash(lockId: string, dataHash: string, network: string): Promise<string> {
@@ -247,7 +247,7 @@ export class DirectTransferFacilitator {
   }
 
   private async postDataHashArc(lockId: `0x${string}`, dataHash: `0x${string}`): Promise<string> {
-    // Re-check timelock margin before posting — time may have elapsed since verify()
+    // Re-check timelock margin before posting - time may have elapsed since verify()
     const lock = await this.arcPublicClient.readContract({
       address: this.config.htlcContractAddress,
       abi: HTLC_ABI,
@@ -291,7 +291,7 @@ export class DirectTransferFacilitator {
       this.htlcSolanaProgramId,
     );
 
-    // Re-check timelock margin before posting — time may have elapsed since verify()
+    // Re-check timelock margin before posting - time may have elapsed since verify()
     const accountInfo = await connection.getAccountInfo(lockPDA);
     if (accountInfo && accountInfo.data.length >= 153) {
       const timelock = Number(accountInfo.data.readBigInt64LE(144));
@@ -357,7 +357,7 @@ export class DirectTransferFacilitator {
   }
 
   // ============================================================
-  //  Get Lock State — read on-chain state for recovery checks
+  //  Get Lock State - read on-chain state for recovery checks
   // ============================================================
 
   async getLockState(lockId: string, network: string): Promise<number | undefined> {
@@ -387,7 +387,7 @@ export class DirectTransferFacilitator {
   }
 
   // ============================================================
-  //  Claim After Confirmation — async background claim
+  //  Claim After Confirmation - async background claim
   // ============================================================
 
   /**
@@ -445,7 +445,7 @@ export class DirectTransferFacilitator {
     }
 
     // Verify the lock actually reached Confirmed state before attempting claim.
-    // If the poll timed out, the lock may still be in DataPosted — claiming would revert and waste gas.
+    // If the poll timed out, the lock may still be in DataPosted - claiming would revert and waste gas.
     const finalLock = await this.arcPublicClient.readContract({
       address: this.config.htlcContractAddress,
       abi: HTLC_ABI,
@@ -559,7 +559,7 @@ export class DirectTransferFacilitator {
     }
 
     // Verify the lock actually reached Confirmed state before attempting claim.
-    // If the poll timed out, the lock may still be in DataPosted — claiming would revert and waste gas.
+    // If the poll timed out, the lock may still be in DataPosted - claiming would revert and waste gas.
     const finalAccountInfo = await connection.getAccountInfo(lockPDA);
     if (!finalAccountInfo || finalAccountInfo.data.length < 153) {
       console.warn("[facilitator] Solana lock account missing after polling, skipping claim");
@@ -670,7 +670,7 @@ export class DirectTransferFacilitator {
     }
 
     if (!claimSignature) {
-      this.claimedLocks.delete(lockIdHex); // rollback — all retries exhausted
+      this.claimedLocks.delete(lockIdHex); // rollback - all retries exhausted
       console.error("[facilitator] Solana claim: all retry attempts expired");
       return;
     }
@@ -762,7 +762,7 @@ export class DirectTransferFacilitator {
       return {
         isValid: false,
         invalidReason: "insufficient_time",
-        invalidMessage: `Lock expires in ${timelock - now}s — need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
+        invalidMessage: `Lock expires in ${timelock - now}s - need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
       };
     }
 
@@ -867,7 +867,7 @@ export class DirectTransferFacilitator {
       return {
         isValid: false,
         invalidReason: "insufficient_time",
-        invalidMessage: `Lock expires in ${timelock - now}s — need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
+        invalidMessage: `Lock expires in ${timelock - now}s - need at least ${MIN_TIMELOCK_SAFETY_MARGIN}s to complete the protocol flow`,
       };
     }
 

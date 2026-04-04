@@ -55,7 +55,7 @@ export function createNextMiddleware(
           paymentPayload = JSON.parse(decoded);
           isDirectScheme = paymentPayload?.accepted?.scheme === "direct";
         } catch {
-          // Not parseable — fall through to base handler
+          // Not parseable - fall through to base handler
         }
 
         if (isDirectScheme && paymentPayload) {
@@ -177,8 +177,8 @@ async function handleDirectSchemePayment(
     // Check on-chain state before giving up.
     const onChainState = await server.facilitator.getLockState(lockId, network);
     if (onChainState !== undefined && onChainState >= 2) {
-      // DataPosted (2) or later — tx DID land, proceed with encrypted response
-      console.warn("[middleware] postDataHash confirmation failed but on-chain state is", onChainState, "— proceeding");
+      // DataPosted (2) or later - tx DID land, proceed with encrypted response
+      console.warn("[middleware] postDataHash confirmation failed but on-chain state is", onChainState, "- proceeding");
     } else {
       console.error("[middleware] postDataHash failed:", err);
       return NextResponse.json(

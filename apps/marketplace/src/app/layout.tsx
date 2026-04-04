@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Payproof",
-  description: "The payment layer for the agentic internet — x402 + HTLC multi-chain settlement",
+  description: "The payment layer for the agentic internet - x402 + HTLC multi-chain settlement",
 };
 
 export default function RootLayout({

@@ -44,7 +44,7 @@ describe("MemoryPreimageStore", () => {
     const consumed = store.consumePreimage(hashlock);
     expect(consumed).toBe(preimage);
 
-    // Entry IS deleted — consumePreimage prevents double-use of the preimage.
+    // Entry IS deleted - consumePreimage prevents double-use of the preimage.
     // The preimage is passed explicitly to claimAfterConfirmation after consumption.
     expect(store.getPreimage(hashlock)).toBeNull();
     expect(store.consumePreimage(hashlock)).toBeNull();

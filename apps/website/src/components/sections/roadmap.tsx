@@ -7,7 +7,7 @@ import { SectionWrapper } from "@/components/section-wrapper";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /* ------------------------------------------------------------------ */
-/*  Roadmap data — 2 phases only                                       */
+/*  Roadmap data - 2 phases only                                       */
 /* ------------------------------------------------------------------ */
 
 interface Phase {
@@ -81,7 +81,7 @@ function PhaseBlock({ phase, index }: { phase: Phase; index: number }) {
         <div className="flex items-center gap-3 flex-wrap">
           <span className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {phase.name}
-            {phase.version ? ` — ${phase.version}` : ""}
+            {phase.version ? ` - ${phase.version}` : ""}
           </span>
           {phase.current && (
             <span className="text-[10px] font-sans font-medium bg-payment/10 text-payment rounded-full px-2 py-0.5">

@@ -53,7 +53,7 @@ function buildToolDefinitions(): Anthropic.Tool[] {
           preferred_network: {
             type: "string",
             enum: enabledIds,
-            description: "Preferred payment network — pick the one where you have the most USDC balance",
+            description: "Preferred payment network - pick the one where you have the most USDC balance",
           },
         },
         required: ["endpoint"],
@@ -71,7 +71,7 @@ function buildToolDefinitions(): Anthropic.Tool[] {
     },
   ];
 
-  // Refund tool — only if there are direct (HTLC) chains enabled
+  // Refund tool - only if there are direct (HTLC) chains enabled
   if (directIds.length > 0) {
     tools.push({
       name: "refund_expired_lock",
@@ -95,7 +95,7 @@ function buildToolDefinitions(): Anthropic.Tool[] {
     });
   }
 
-  // Arc transfer tool — only if Arc is enabled
+  // Arc transfer tool - only if Arc is enabled
   if (enabledIds.includes("eip155:5042002")) {
     tools.push({
       name: "transfer_usdc_arc",
@@ -149,7 +149,7 @@ export async function executeTool(
               address: evmWallet.account.address,
               usdc_balance: await arcWallet.getArcUSDCBalance(),
               payment_scheme: chain.scheme,
-              note: "USDC is native gas token — no separate gas needed",
+              note: "USDC is native gas token - no separate gas needed",
             };
           } else if (chain.family === "solana" && solanaWallet) {
             return {
@@ -234,7 +234,7 @@ export async function executeTool(
             symbol: "USDC",
             timestamp: requestTimestamp,
             epoch: Math.floor(requestTimestamp / 1000),
-            message: body || "Payment failed — no response body",
+            message: body || "Payment failed - no response body",
             settlement: Object.keys(paymentMeta).length > 0 ? paymentMeta : undefined,
           });
         }
@@ -415,7 +415,7 @@ export async function executeTool(
             const secsLeft = Number(data.timelock) - now;
             return JSON.stringify({
               success: false,
-              error: `Timelock has not expired yet — ${secsLeft}s remaining`,
+              error: `Timelock has not expired yet - ${secsLeft}s remaining`,
               lockId,
               expiresAt: new Date(Number(data.timelock) * 1000).toISOString(),
             });
@@ -464,7 +464,7 @@ export async function executeTool(
               const secsLeft = timelock - now;
               return JSON.stringify({
                 success: false,
-                error: `Timelock has not expired yet — ${secsLeft}s remaining`,
+                error: `Timelock has not expired yet - ${secsLeft}s remaining`,
                 lockId,
                 expiresAt: new Date(timelock * 1000).toISOString(),
               });

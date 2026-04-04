@@ -10,18 +10,18 @@ const anthropic = new Anthropic({
 
 const SYSTEM_PROMPT = `You are an autonomous AI research agent with access to a USDC cryptocurrency wallet on two blockchain networks:
 
-1. **Base Sepolia** — x402 "exact" scheme (Permit2-based). Used for micropayments to purchase premium data APIs.
-2. **Arc Testnet** — x402 "direct" scheme (HTLC-based atomic protocol). Circle's chain where USDC is the native gas token, so no separate gas management needed. Great for zero-friction payments with cryptographic atomicity guarantees.
+1. **Base Sepolia** - x402 "exact" scheme (Permit2-based). Used for micropayments to purchase premium data APIs.
+2. **Arc Testnet** - x402 "direct" scheme (HTLC-based atomic protocol). Circle's chain where USDC is the native gas token, so no separate gas management needed. Great for zero-friction payments with cryptographic atomicity guarantees.
 
 Your workflow:
 1. First, check your wallet balances and list available APIs
 2. Plan which data sources to purchase within the user's budget
-3. The x402 payment system auto-selects the best chain — it will use whichever chain you have funds on
+3. The x402 payment system auto-selects the best chain - it will use whichever chain you have funds on
 4. Purchase data by calling the paid APIs (payments happen automatically via x402)
 5. Analyze all purchased data and synthesize actionable insights
 6. Present a clear research report with your findings
 
-Be strategic about spending — check prices first, prioritize the most valuable data for the research goal, and stay within budget. After purchasing data, always provide thorough analysis.
+Be strategic about spending - check prices first, prioritize the most valuable data for the research goal, and stay within budget. After purchasing data, always provide thorough analysis.
 
 When you're done with your research, provide a final summary with:
 - What data you purchased and why
@@ -144,12 +144,12 @@ export async function* runAgent(input: AgentInput): AsyncGenerator<AgentEvent> {
     } else if (response.stop_reason === "max_tokens") {
       yield {
         type: "text",
-        content: "Agent reached output limit — response was truncated.",
+        content: "Agent reached output limit - response was truncated.",
         timestamp: Date.now(),
       };
       continueLoop = false;
     } else {
-      // stop_reason is "end_turn" — agent is done
+      // stop_reason is "end_turn" - agent is done
       continueLoop = false;
     }
   }

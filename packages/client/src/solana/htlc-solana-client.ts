@@ -264,7 +264,7 @@ export function createHtlcSolanaClient(config: HtlcSolanaClientConfig) {
           });
           if (!txDetail?.meta?.logMessages) continue;
 
-          // Look for the ClaimedEvent in logs — Anchor emits it as base64 data
+          // Look for the ClaimedEvent in logs - Anchor emits it as base64 data
           // The preimage is the 32 bytes in the claim instruction data after the 8-byte discriminator
           // Extract preimage from instruction data
           const message = txDetail.transaction.message;

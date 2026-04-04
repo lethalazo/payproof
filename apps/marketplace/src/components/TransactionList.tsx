@@ -64,7 +64,7 @@ function extractTransactions(events: AgentEvent[]): ParsedTx[] {
           chain: data.settlement?.chain || "Unknown",
           type: "x402",
           amount: data.amount || "?",
-          description: `Failed: ${data.endpoint} — ${data.error}`,
+          description: `Failed: ${data.endpoint} - ${data.error}`,
           status: "failed",
         });
         continue;

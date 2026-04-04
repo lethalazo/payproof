@@ -4,11 +4,11 @@
 
 [x402](https://www.x402.org/) is an HTTP standard for machine-to-machine payments. When a resource requires payment, the server returns `HTTP 402 Payment Required` with structured requirements. The client pays, retries with proof, and receives the resource.
 
-Payproof uses x402 as the transport layer — the 402 response format, payment headers, and client/server negotiation. For the `direct` scheme, Payproof adds atomic data-for-payment guarantees on top.
+Payproof uses x402 as the transport layer - the 402 response format, payment headers, and client/server negotiation. For the `direct` scheme, Payproof adds atomic data-for-payment guarantees on top.
 
 ## Three Payment Schemes
 
-### Arc Testnet — `direct` (primary)
+### Arc Testnet - `direct` (primary)
 
 **Network**: `eip155:5042002` | **Token**: USDC (native gas) | **Contract**: HTLC.sol
 
@@ -18,9 +18,9 @@ Full atomic data-for-payment protocol:
 - Agent confirms receipt, merchant claims by revealing preimage
 - Agent decrypts using revealed preimage
 
-**Advantage**: USDC is the native gas token on Arc — agents only need one token.
+**Advantage**: USDC is the native gas token on Arc - agents only need one token.
 
-### Base Sepolia — `exact` (compatibility)
+### Base Sepolia - `exact` (compatibility)
 
 **Network**: `eip155:84532` | **Token**: USDC | **Gas**: ETH
 
@@ -102,18 +102,18 @@ The client retries the original request with an `X-PAYMENT` header:
 
 The `createNextMiddleware` handler:
 
-1. **Verify** — `facilitator.verify()` reads the lock on-chain, checks:
+1. **Verify** - `facilitator.verify()` reads the lock on-chain, checks:
    - State is `Locked`
    - Recipient matches merchant address
    - Amount >= required
    - Hashlock matches server-generated hashlock
    - Timelock hasn't expired
-2. **Fetch data** — Passes request through to the Next.js route handler
-3. **Consume preimage** — Atomically retrieves and deletes from `PreimageStore` (prevents double-use)
-4. **Encrypt** — `AES-256-GCM(plaintext, key=preimage, nonce=random_12_bytes)`
-5. **Compute dataHash** — `SHA-256(ciphertext_bytes)`
-6. **Post dataHash** — `facilitator.postDataHash(lockId, dataHash, network)` — on-chain tx, waits for receipt
-7. **Return EncryptedPayload** — HTTP 200 with `x-payproof-encrypted: true` header:
+2. **Fetch data** - Passes request through to the Next.js route handler
+3. **Consume preimage** - Atomically retrieves and deletes from `PreimageStore` (prevents double-use)
+4. **Encrypt** - `AES-256-GCM(plaintext, key=preimage, nonce=random_12_bytes)`
+5. **Compute dataHash** - `SHA-256(ciphertext_bytes)`
+6. **Post dataHash** - `facilitator.postDataHash(lockId, dataHash, network)` - on-chain tx, waits for receipt
+7. **Return EncryptedPayload** - HTTP 200 with `x-payproof-encrypted: true` header:
    ```json
    {
      "encryptedBlob": "base64EncodedCiphertext",
@@ -122,7 +122,7 @@ The `createNextMiddleware` handler:
      "dataHash": "0xSHA256OfCiphertext"
    }
    ```
-8. **Fire-and-forget claim** — `facilitator.claimAfterConfirmation()` starts background polling
+8. **Fire-and-forget claim** - `facilitator.claimAfterConfirmation()` starts background polling
 
 ### Client Decryption Pipeline
 
@@ -153,8 +153,8 @@ interface PreimageStore {
 - **Generation**: `crypto.getRandomValues(32 bytes)` → `SHA-256(bytes)` → `{ preimage, hashlock }`
 - **TTL**: 30 minutes (MemoryPreimageStore default)
 - **Lifecycle**:
-  1. `generateHashlock()` — called during 402 response generation
-  2. `consumePreimage()` — called during encryption in the middleware (atomic get-and-delete prevents double-use)
+  1. `generateHashlock()` - called during 402 response generation
+  2. `consumePreimage()` - called during encryption in the middleware (atomic get-and-delete prevents double-use)
   3. Preimage is passed explicitly to `claimAfterConfirmation()` since it was already consumed from the store
 
 ### Client Side (LockStore)
@@ -191,7 +191,7 @@ const client = new x402Client((_version, accepts) => {
 
 ## Replay Protection
 
-- **Lock-based**: Each `lockId` is a random `bytes32` — used exactly once
+- **Lock-based**: Each `lockId` is a random `bytes32` - used exactly once
 - **Map-based dedup**: The facilitator's `claimedLocks` Map (lockId → timestamp) prevents double-claiming, with periodic sweep of entries older than 30 minutes
 - **Preimage TTL**: Server-side `PreimageStore` entries expire after 30 minutes; `consumePreimage()` atomically deletes on first use
 

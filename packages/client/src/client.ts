@@ -39,7 +39,7 @@ export interface PayproofClientConfig {
   evmPrivateKey?: string;
   /** HTLC contract address on Arc. Required unless chains.evm is provided. */
   htlcContractAddress?: `0x${string}`;
-  /** Solana private key (base58). Optional — omit to disable Solana. */
+  /** Solana private key (base58). Optional - omit to disable Solana. */
   solanaPrivateKey?: string;
   /** Solana HTLC program ID. Optional. */
   htlcSolanaProgramId?: string;
@@ -47,7 +47,7 @@ export interface PayproofClientConfig {
   solanaUsdcMint?: string;
   /** Solana RPC URL. Optional, defaults to devnet. */
   solanaRpcUrl?: string;
-  /** LockStore — defaults to MemoryLockStore. */
+  /** LockStore - defaults to MemoryLockStore. */
   lockStore?: LockStore;
   /** Modular chain configuration. If provided, takes precedence over top-level fields. */
   chains?: ChainsConfig;
@@ -151,7 +151,7 @@ export function createPayproofClient(config: PayproofClientConfig): PayproofClie
     }
   }
 
-  // x402 client wrapper — now receives HTLC clients for post-response decryption
+  // x402 client wrapper - now receives HTLC clients for post-response decryption
   const x402Wrapper = createX402ClientWrapper({
     account: evmWallet.account,
     basePublicClient: evmWallet.basePublicClient,

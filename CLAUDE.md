@@ -6,7 +6,7 @@
 
 Payproof is an **atomic data-for-payment protocol** for AI agent commerce. Built on the x402 HTTP standard with HTLC smart contracts.
 
-**Core innovation**: The HTLC preimage that unlocks payment **is** the AES-256-GCM decryption key for the data. Neither party can cheat — the merchant only gets paid by revealing the decryption key, and the agent only gets the key after confirming data receipt on-chain.
+**Core innovation**: The HTLC preimage that unlocks payment **is** the AES-256-GCM decryption key for the data. Neither party can cheat - the merchant only gets paid by revealing the decryption key, and the agent only gets the key after confirming data receipt on-chain.
 
 **Status**: MVP complete, production ready
 
@@ -39,17 +39,17 @@ pnpm -r clean
 
 ```
 packages/
-  contracts/               # @payproof/contracts — types, ABIs, chain configs
-  client/                  # @payproof/client — agent-side SDK
+  contracts/               # @payproof/contracts - types, ABIs, chain configs
+  client/                  # @payproof/client - agent-side SDK
     src/
       client.ts              # createPayproofClient() factory
       x402/                  # x402 integration + encrypted response handling
       evm/                   # Arc wallet + HTLC client (lock, confirm, watch)
       solana/                # Solana wallet + HTLC client
       crypto/                # AES-256-GCM decryption
-      stores/                # LockStore — pending payment tracking
+      stores/                # LockStore - pending payment tracking
       auto-refund.ts         # Background refund sweeper
-  server/                  # @payproof/server — merchant-side SDK
+  server/                  # @payproof/server - merchant-side SDK
     src/
       gate.ts                # createPayproofServer() factory
       facilitator.ts         # verify, postDataHash, claimAfterConfirmation
@@ -67,8 +67,8 @@ programs/htlc-solana/      # Solana HTLC program (Anchor)
 
 | Chain | Scheme | Token | Status |
 |-------|--------|-------|--------|
-| **Arc Testnet** | `direct` (HTLC) | USDC | Primary — full atomic protocol |
-| **Base Sepolia** | `exact` (Permit2) | USDC | x402 compatibility — trust-based |
+| **Arc Testnet** | `direct` (HTLC) | USDC | Primary - full atomic protocol |
+| **Base Sepolia** | `exact` (Permit2) | USDC | x402 compatibility - trust-based |
 | **Solana Devnet** | `direct` (HTLC) | USDC | SDK-level, not enabled in demo |
 
 ## 7-State HTLC Protocol
@@ -93,9 +93,9 @@ Locked → Refunded (timelock expired)
 
 ## Key Patterns
 
-- **Factory pattern**: `createPayproofClient()` and `createPayproofServer()` — modular per-chain config
+- **Factory pattern**: `createPayproofClient()` and `createPayproofServer()` - modular per-chain config
 - **Preimage-as-key**: 32-byte HTLC preimage = AES-256-GCM encryption key. Atomic by construction
-- **Pluggable stores**: PreimageStore, LockStore, LedgerStore — all have Memory* implementations, swap for Redis/PG in production
+- **Pluggable stores**: PreimageStore, LockStore, LedgerStore - all have Memory* implementations, swap for Redis/PG in production
 - **x402 transport**: HTTP 402 standard. Two schemes: `direct` (atomic HTLC) and `exact` (Permit2, trust-based)
 - **Next.js middleware**: `createNextMiddleware()` orchestrates full encrypted flow transparently
 - **Auto-refund sweeper**: Background service refunds expired locks (configurable interval)
@@ -141,15 +141,15 @@ TREASURY_ADDRESS=0x...
 
 ## Documentation
 
-- `PROTOCOL.md` — Chain-agnostic HTLC spec, state machine, conformance checklist
-- `docs/protocol.md` — Full 14-step flow, game theory, cryptographic details
-- `docs/architecture.md` — System design, package structure, data flow
-- `docs/smart-contracts.md` — HTLC.sol, PayproofRegistry, deployment, ABI
-- `docs/payment-system.md` — x402 schemes, encrypted flow, preimage lifecycle
-- `docs/payment-recovery.md` — Failure modes, defense layers, treasury mechanism
-- `docs/sdk-guide.md` — Merchant + agent integration, configuration, examples
-- `docs/api-reference.md` — HTTP endpoints, agent tools, response schemas
-- `docs/deployment.md` — Environment setup, contract deployment, key management
-- `docs/testing.md` — Test structure, execution model, timeouts
-- `docs/competitive-analysis.md` — x402 vs Payproof positioning
-- `docs/roadmap.md` — Enhancement roadmap
+- `PROTOCOL.md` - Chain-agnostic HTLC spec, state machine, conformance checklist
+- `docs/protocol.md` - Full 14-step flow, game theory, cryptographic details
+- `docs/architecture.md` - System design, package structure, data flow
+- `docs/smart-contracts.md` - HTLC.sol, PayproofRegistry, deployment, ABI
+- `docs/payment-system.md` - x402 schemes, encrypted flow, preimage lifecycle
+- `docs/payment-recovery.md` - Failure modes, defense layers, treasury mechanism
+- `docs/sdk-guide.md` - Merchant + agent integration, configuration, examples
+- `docs/api-reference.md` - HTTP endpoints, agent tools, response schemas
+- `docs/deployment.md` - Environment setup, contract deployment, key management
+- `docs/testing.md` - Test structure, execution model, timeouts
+- `docs/competitive-analysis.md` - x402 vs Payproof positioning
+- `docs/roadmap.md` - Enhancement roadmap

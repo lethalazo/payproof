@@ -31,7 +31,7 @@ const STEPS = [
     num: 5,
     label: "Decrypt",
     description: "Buyer reads the preimage from the claim transaction and decrypts the data",
-    detail: "The preimage — now visible on-chain from the claim transaction — is the AES-256-GCM decryption key. The buyer uses it to decrypt the data. Payment and data delivery are mathematically atomic.",
+    detail: "The preimage - now visible on-chain from the claim transaction - is the AES-256-GCM decryption key. The buyer uses it to decrypt the data. Payment and data delivery are mathematically atomic.",
   },
 ];
 
@@ -55,7 +55,7 @@ export default function HowItWorks() {
               <div>
                 <h2 className="text-lg font-bold text-white">How Payproof Works</h2>
                 <p className="text-sm text-gray-400 mt-0.5">
-                  Atomic data-for-payment — no trust required
+                  Atomic data-for-payment - no trust required
                 </p>
               </div>
               <button

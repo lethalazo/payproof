@@ -33,7 +33,7 @@ describe("E2E encrypted payment flow", () => {
       try { unlinkSync(lockFile); } catch {}
     }
 
-    // Spawn Next.js dev server — encrypted flow is auto-detected via scheme: "direct"
+    // Spawn Next.js dev server - encrypted flow is auto-detected via scheme: "direct"
     devServer = spawn("npx", ["next", "dev", "-p", String(PORT)], {
       cwd: appDir,
       env: {

@@ -13,7 +13,7 @@ const nodes = [
   { id: "chain", label: "Chain", cx: 200, cy: 260, color: "var(--chain)" },
 ] as const;
 
-/* ── Connection lines — computed edge-to-edge from circle centers ── */
+/* ── Connection lines - computed edge-to-edge from circle centers ── */
 const R = 30;
 function edgePts(ax: number, ay: number, bx: number, by: number) {
   const dx = bx - ax, dy = by - ay;
@@ -128,7 +128,7 @@ function ProtocolVisualization() {
               }}
             />
 
-            {/* Outer circle — filled */}
+            {/* Outer circle - filled */}
             <circle
               cx={node.cx}
               cy={node.cy}

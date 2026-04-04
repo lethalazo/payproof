@@ -187,7 +187,7 @@ export function createX402ClientWrapper(config: X402ClientConfig): X402ClientWra
     // Step 7: Return new Response with plaintext
     const newHeaders = new Headers(response.headers);
     newHeaders.delete("x-payproof-encrypted");
-    // Try to preserve content-type from original — default to application/json
+    // Try to preserve content-type from original - default to application/json
     if (!newHeaders.has("x-original-content-type")) {
       newHeaders.set("content-type", "application/json");
     }

@@ -7,12 +7,12 @@ import { GradientOrbs } from "@/components/animations/gradient-orbs";
 import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /* ═══════════════════════════════════════════════════════════════
-   Icon 1 — Payment Before Delivery
+   Icon 1 - Payment Before Delivery
    viewBox 0 0 80 56, two tracks with arrows
    ═══════════════════════════════════════════════════════════════ */
 function PaymentBeforeDeliveryIcon() {
   /*
-    viewBox 0 0 80 56 — two parallel horizontal tracks:
+    viewBox 0 0 80 56 - two parallel horizontal tracks:
       Top track (y=16): emerald arrow travels right → succeeds (payment goes)
       Bottom track (y=40): orange arrow travels left → hits red barrier (data blocked)
       Red barrier is a vertical wall at x≈40 on the bottom track only
@@ -49,7 +49,7 @@ function PaymentBeforeDeliveryIcon() {
         stroke="var(--problem)" strokeWidth={1.5}
       />
 
-      {/* ── Red X — appears when arrow hits barrier ──────── */}
+      {/* ── Red X - appears when arrow hits barrier ──────── */}
       <motion.g
         whileInView={{ scale: [0, 1.15, 1], opacity: [0, 1, 1] }}
         viewport={{ once: false }}
@@ -64,7 +64,7 @@ function PaymentBeforeDeliveryIcon() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Icon 2 — Trusted Facilitators
+   Icon 2 - Trusted Facilitators
    viewBox 0 0 72 72, center circle + 6 inward arrows
    ═══════════════════════════════════════════════════════════════ */
 const r = (n: number) => Math.round(n * 100) / 100; // avoid SSR/client float drift
@@ -130,7 +130,7 @@ function TrustedFacilitatorsIcon() {
           </motion.g>
         ))}
 
-      {/* Center dot — pulses */}
+      {/* Center dot - pulses */}
       <motion.circle
         cx={36}
         cy={36}
@@ -150,7 +150,7 @@ function TrustedFacilitatorsIcon() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Icon 3 — No Recourse
+   Icon 3 - No Recourse
    viewBox 0 0 72 72, $ circle dissolves → particles → ? appears
    ═══════════════════════════════════════════════════════════════ */
 const scatterParticles = [
@@ -170,7 +170,7 @@ function NoRecourseIcon() {
 
   return (
     <svg viewBox="0 0 72 72" className="w-[4.5rem] h-[4.5rem]" fill="none">
-      {/* Phase 1: $ circle — shrinks to 0 */}
+      {/* Phase 1: $ circle - shrinks to 0 */}
       <motion.circle
         cx={36}
         cy={36}

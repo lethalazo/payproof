@@ -4,7 +4,7 @@ let _client: PayproofClient | null = null;
 
 function requireEnv(name: string, hint: string): string {
   const val = process.env[name];
-  if (!val) throw new Error(`${name} is required — ${hint}`);
+  if (!val) throw new Error(`${name} is required - ${hint}`);
   return val;
 }
 

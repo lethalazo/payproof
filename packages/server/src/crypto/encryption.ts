@@ -1,6 +1,6 @@
 /**
  * Server-side AES-256-GCM encryption using the HTLC preimage as the key.
- * The preimage doubles as an encryption key — when the merchant reveals it
+ * The preimage doubles as an encryption key - when the merchant reveals it
  * via claim(), the agent can decrypt the data.
  */
 

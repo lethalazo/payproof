@@ -305,7 +305,7 @@ describe("Solana HTLC on-chain (7-state)", () => {
     const lockIdBytes = Buffer.from(randomBytes(32));
     const { hashlockBytes } = generatePreimage();
 
-    // Lock with short timelock — but we need postDataHash first, so use longer timelock
+    // Lock with short timelock - but we need postDataHash first, so use longer timelock
     const { lockPDA, escrowPDA } = await lockFunds(lockIdBytes, hashlockBytes, 1000n, 300);
 
     // postDataHash
@@ -343,7 +343,7 @@ describe("Solana HTLC on-chain (7-state)", () => {
     // Read config to get treasury address
     const configInfo = await connection.getAccountInfo(configPDA);
     if (!configInfo) {
-      // Config not initialized — skip this test
+      // Config not initialized - skip this test
       console.warn("ProgramConfig not initialized; skipping sendToTreasury test");
       return;
     }

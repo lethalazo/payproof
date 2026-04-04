@@ -256,7 +256,7 @@ export default function Dashboard() {
 
           {budgetWarning && (
             <p className="text-xs text-amber-400 mt-2">
-              Budget is below ${TOTAL_COST.toFixed(3)} — may not be enough to buy all three data
+              Budget is below ${TOTAL_COST.toFixed(3)} - may not be enough to buy all three data
               sources.
             </p>
           )}
@@ -294,7 +294,7 @@ export default function Dashboard() {
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Agent Chat — Left/Wide */}
+              {/* Agent Chat - Left/Wide */}
               <div className="lg:col-span-2 bg-gray-900 rounded-lg border border-gray-800 h-[600px] flex flex-col">
                 <div className="px-4 py-3 border-b border-gray-800 text-sm font-medium text-gray-300">
                   Agent Activity

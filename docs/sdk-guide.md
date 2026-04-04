@@ -42,7 +42,7 @@ export const config = { matcher: "/api/:path*" };
 
 ### Route Handlers
 
-Route handlers return data normally — encryption and on-chain settlement are handled by the middleware:
+Route handlers return data normally - encryption and on-chain settlement are handled by the middleware:
 
 ```typescript
 // app/api/weather/route.ts
@@ -52,7 +52,7 @@ export async function GET() {
 }
 ```
 
-That's it. The middleware intercepts requests, handles 402 responses, verifies payments, encrypts data, posts the dataHash on-chain, returns the encrypted payload, and claims payment — all transparently.
+That's it. The middleware intercepts requests, handles 402 responses, verifies payments, encrypts data, posts the dataHash on-chain, returns the encrypted payload, and claims payment - all transparently.
 
 ### Server Configuration Reference
 
@@ -63,13 +63,13 @@ interface PayproofServerConfig {
   merchantEvmPrivateKey: string;    // Signs HTLC claims on EVM
   htlcContractAddress: `0x${string}`;  // HTLC contract on Arc
 
-  // Optional — hosted facilitator for exact scheme
+  // Optional - hosted facilitator for exact scheme
   hostedFacilitatorUrl?: string;    // Defaults to "https://x402.org/facilitator"
 
-  // Optional — dispute resolution
+  // Optional - dispute resolution
   treasuryAddress?: string;         // Treasury for unresolvable disputes
 
-  // Optional — pluggable stores
+  // Optional - pluggable stores
   preimageStore?: PreimageStore;    // Defaults to MemoryPreimageStore (30-min TTL)
   ledgerStore?: LedgerStore;        // Defaults to MemoryLedgerStore
 }
@@ -128,7 +128,7 @@ const client = createPayproofClient({
 // Get the payment-aware fetch function
 const fetchWithPayment = client.getFetchWithPayment();
 
-// Use it like normal fetch — payment + decryption is automatic
+// Use it like normal fetch - payment + decryption is automatic
 const response = await fetchWithPayment("https://api.example.com/weather");
 const data = await response.json(); // plaintext data
 ```
@@ -179,7 +179,7 @@ interface PayproofClientConfig {
   evmPrivateKey: string;              // Agent's EVM private key (hex)
   htlcContractAddress: `0x${string}`; // HTLC contract on Arc
 
-  // Optional — pluggable store
+  // Optional - pluggable store
   lockStore?: LockStore;             // Defaults to MemoryLockStore
 }
 ```
@@ -239,12 +239,12 @@ Prefer the chain with the most funds.`;
 
 | Error | Cause | Resolution |
 |-------|-------|------------|
-| `missing_lock_id` | Payment header without lockId | Client SDK bug — lockId should be included |
+| `missing_lock_id` | Payment header without lockId | Client SDK bug - lockId should be included |
 | `not_locked` | Lock state mismatch | Lock was already claimed/refunded/treasury |
 | `wrong_recipient` | Lock recipient doesn't match merchant | Client locked to wrong address |
 | `insufficient_amount` | Lock amount < required | Rounding issue or price changed |
-| `wrong_hashlock` | Hashlock mismatch | Preimage TTL expired or stale 402 response — retry from step 1 |
-| `expired` | Timelock already passed | Agent took too long — lock is refundable |
+| `wrong_hashlock` | Hashlock mismatch | Preimage TTL expired or stale 402 response - retry from step 1 |
+| `expired` | Timelock already passed | Agent took too long - lock is refundable |
 | `Preimage not found` | Server preimage expired | PreimageStore TTL (30 min) exceeded |
 | `post_data_hash_failed` | On-chain tx reverted | Check gas, contract state, network status |
 | `hash mismatch` | receiptHash != dataHash | Corrupted encrypted payload |
@@ -252,7 +252,7 @@ Prefer the chain with the most funds.`;
 ### Retry Strategy
 
 For transient failures:
-1. **402 retry**: Automatic — x402 client retries with payment
+1. **402 retry**: Automatic - x402 client retries with payment
 2. **Lock confirmation**: SDK polls with 3s intervals, up to 4 minutes
 3. **Claim after confirmation**: Background polling with 3s intervals, up to 3 minutes
 

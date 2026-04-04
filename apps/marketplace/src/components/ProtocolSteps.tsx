@@ -28,7 +28,7 @@ function deriveStepStatuses(events: AgentEvent[]): { statuses: StepStatus[]; com
 
   for (const event of events) {
     if (event.type === "tool_call" && event.toolName === "fetch_paid_data") {
-      // New payment initiated — reset to show active lock step
+      // New payment initiated - reset to show active lock step
       inFlight = true;
       statuses[0] = "active";
       for (let i = 1; i < statuses.length; i++) statuses[i] = "pending";
@@ -43,7 +43,7 @@ function deriveStepStatuses(events: AgentEvent[]): { statuses: StepStatus[]; com
           for (let i = 0; i < statuses.length; i++) statuses[i] = "done";
         } else if (data.error) {
           inFlight = false;
-          // Payment failed — show lock as done (attempted), rest pending
+          // Payment failed - show lock as done (attempted), rest pending
           statuses[0] = "done";
           for (let i = 1; i < statuses.length; i++) statuses[i] = "pending";
         }

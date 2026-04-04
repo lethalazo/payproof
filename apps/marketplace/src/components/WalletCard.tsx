@@ -58,7 +58,7 @@ export default function WalletCard({
         <span className="text-sm font-medium text-gray-300">{name}</span>
       </div>
       <div className="text-2xl font-bold text-white mb-1">
-        {balance === "error" ? "—" : `${balance} ${symbol}`}
+        {balance === "error" ? "-" : `${balance} ${symbol}`}
       </div>
       <div className="flex items-center justify-between">
         {explorer ? (
@@ -87,7 +87,7 @@ export default function WalletCard({
       {isLowBalance && (
         <div className="mt-2 text-[11px] text-amber-400 flex items-center gap-1">
           <span>&#9888;</span>
-          Low balance — get testnet USDC from the faucet
+          Low balance - get testnet USDC from the faucet
         </div>
       )}
     </div>

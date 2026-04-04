@@ -17,7 +17,7 @@ export interface EvmWalletConfig {
 
 export interface EvmWallet {
   account: LocalAccount;
-  /** Use as PublicClient — chain-parameterized internally. */
+  /** Use as PublicClient - chain-parameterized internally. */
   basePublicClient: PublicClient;
   getBaseUSDCBalance(): Promise<string>;
 }

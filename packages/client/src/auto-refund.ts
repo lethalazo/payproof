@@ -69,10 +69,10 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
               continue;
             }
             if (data.state === LockState.Treasury) {
-              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized — not recoverable
+              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized - not recoverable
               continue;
             }
-            // DataPosted or Confirmed — flow is in progress, skip refund
+            // DataPosted or Confirmed - flow is in progress, skip refund
             if (data.state !== LockState.Locked) continue;
 
             const txHash = await htlcClient.refundLock(lock.lockId as `0x${string}`);
@@ -97,10 +97,10 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
               continue;
             }
             if (state === LockState.Treasury) {
-              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized — not recoverable
+              await lockStore.updateStatus(lock.lockId, "refunded"); // treasury seized - not recoverable
               continue;
             }
-            // DataPosted or Confirmed — flow is in progress, skip refund
+            // DataPosted or Confirmed - flow is in progress, skip refund
             if (state !== LockState.Locked) continue;
 
             const signature = await htlcSolanaClient.refundLockSolana(lockIdBuf);
@@ -108,11 +108,11 @@ export function startAutoRefundSweeper(config: AutoRefundSweeperConfig): AutoRef
             onRefund?.(lock.lockId, lock.network, signature);
           }
         } catch {
-          // Log but don't crash — retry next interval
+          // Log but don't crash - retry next interval
         }
       }
     } catch {
-      // Top-level catch — sweeper must never crash
+      // Top-level catch - sweeper must never crash
     }
   }, intervalMs);
 

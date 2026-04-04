@@ -1,4 +1,4 @@
-// Marketplace API catalog — single source of truth for tools.ts and UI
+// Marketplace API catalog - single source of truth for tools.ts and UI
 
 import { getNetworkInfoForAPIs } from "./chain-config";
 
@@ -12,13 +12,13 @@ export interface MarketplaceAPI {
   networks: { label: string; scheme: string; network: string; color: string }[];
 }
 
-/** API definitions without network info — networks are injected dynamically. */
+/** API definitions without network info - networks are injected dynamically. */
 const API_CATALOG = [
   {
     endpoint: "weather",
     name: "Weather Intelligence",
     description:
-      "Agricultural weather data across major crop regions — temperature, precipitation, crop impact forecasts",
+      "Agricultural weather data across major crop regions - temperature, precipitation, crop impact forecasts",
     price: "$0.001",
     priceNum: 0.001,
     icon: "🌦",
@@ -27,7 +27,7 @@ const API_CATALOG = [
     endpoint: "markets",
     name: "Crypto Markets",
     description:
-      "Crypto market data — prices, volume, market cap for BTC/ETH/SOL/USDC plus market indices",
+      "Crypto market data - prices, volume, market cap for BTC/ETH/SOL/USDC plus market indices",
     price: "$0.01",
     priceNum: 0.01,
     icon: "📊",
@@ -36,7 +36,7 @@ const API_CATALOG = [
     endpoint: "sentiment",
     name: "Sentiment Analysis",
     description:
-      "AI-powered sentiment analysis — social signals, whale activity, macro factors, per-asset breakdown",
+      "AI-powered sentiment analysis - social signals, whale activity, macro factors, per-asset breakdown",
     price: "$0.05",
     priceNum: 0.05,
     icon: "🧠",

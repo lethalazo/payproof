@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Nav } from "@/components/nav";
 
 export const metadata: Metadata = {
-  title: "Payproof Protocol Specification — Trustless Atomic Payments",
+  title: "Payproof Protocol Specification - Trustless Atomic Payments",
   description:
     "Technical specification for trustless atomic payments between autonomous agents.",
 };
@@ -1382,14 +1382,14 @@ export default function WhitepaperPage() {
               </P>
               <div className="bg-[#1E1E2E] text-[#CDD6F4] rounded-xl p-5 font-mono text-sm overflow-x-auto mt-4">
                 <pre>
-{`// Agent — create a configured client
+{`// Agent - create a configured client
 const client = createPayproofClient({
   evmPrivateKey: "0x...",
   escrowContractAddress: "0x...",
   rpcUrl: "https://rpc.testnet.arc.network",
 });
 
-// Merchant — create a configured server
+// Merchant - create a configured server
 const server = createPayproofServer({
   merchantEvmAddress: "0x...",
   merchantEvmPrivateKey: "0x...",
@@ -1438,7 +1438,7 @@ const server = createPayproofServer({
               </P>
               <div className="bg-[#1E1E2E] text-[#CDD6F4] rounded-xl p-5 font-mono text-sm overflow-x-auto mt-4">
                 <pre>
-{`// Agent: one line — gets plaintext back
+{`// Agent: one line - gets plaintext back
 const response = await fetchWithPayment(
   "https://api.example.com/weather"
 );
