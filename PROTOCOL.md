@@ -160,8 +160,8 @@ Abstract fields that every implementation MUST store per lock:
 
 | Timelock | Default Duration | Set When | Purpose |
 |----------|-----------------|----------|---------|
-| `timelock` | 300s (5 min) | `lock()` called | Overall deadline -- agent can refund if merchant never responds |
-| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window -- agent must confirm or funds go to treasury |
+| `timelock` | 300s (5 min) | `lock()` called | Overall deadline - agent can refund if merchant never responds |
+| `dataDeadline` | `block.timestamp + 120s` | `postDataHash()` called | Confirmation window - agent must confirm or funds go to treasury |
 
 The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestamp when the merchant posts the data hash.
 
@@ -171,15 +171,15 @@ The `CONFIRMATION_WINDOW` constant (120s) is added to the current block timestam
 
 SHA-256 is used (not keccak256) for cross-chain compatibility.
 
-- **Hashlock:** `SHA-256(preimage)` -- HTLC commitment
-- **dataHash:** `SHA-256(ciphertext_bytes)` -- data commitment
+- **Hashlock:** `SHA-256(preimage)` - HTLC commitment
+- **dataHash:** `SHA-256(ciphertext_bytes)` - data commitment
 - **receiptHash:** Agent re-computes `SHA-256(ciphertext_bytes)` to confirm receipt
 
 ### AES-256-GCM Encryption
 
 - **Key:** HTLC preimage (32 bytes / 256 bits)
 - **Nonce/IV:** Cryptographically random (12 bytes)
-- **Auth tag:** 128 bits (16 bytes) -- integrity verification
+- **Auth tag:** 128 bits (16 bytes) - integrity verification
 - **Ciphertext:** Variable length, same as plaintext
 
 The preimage is generated server-side via `crypto.getRandomValues(new Uint8Array(32))`.
@@ -209,11 +209,11 @@ The preimage is generated server-side via `crypto.getRandomValues(new Uint8Array
 
 - **Merchant** is incentivized to deliver real data because they only get paid if the agent confirms receipt
 - **Agent** is incentivized to confirm receipt because non-confirmation sends funds to treasury (not back to agent)
-- **Neither party** can profit by defecting -- at worst, disputed funds go to a neutral treasury
+- **Neither party** can profit by defecting - at worst, disputed funds go to a neutral treasury
 
 ### Treasury as Neutral Resolution
 
-The treasury address is set at contract deployment (immutable). When a dispute is unresolvable -- merchant posted data but agent didn't confirm -- funds go to treasury rather than either party. This eliminates the incentive for strategic non-confirmation.
+The treasury address is set at contract deployment (immutable). When a dispute is unresolvable - merchant posted data but agent didn't confirm - funds go to treasury rather than either party. This eliminates the incentive for strategic non-confirmation.
 
 ## 8. Implementation Requirements
 

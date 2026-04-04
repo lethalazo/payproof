@@ -89,7 +89,7 @@ export default function WhitepaperPage() {
             <Section id="abstract" title="Abstract">
               <P>
                 Payproof is a permissionless payment protocol for autonomous
-                AI agent commerce -- trustless, atomic, and built for machine
+                AI agent commerce - trustless, atomic, and built for machine
                 speed. It uses a novel cryptographic construction where the
                 secret that unlocks escrowed payment simultaneously serves as
                 the encryption key for the purchased data. This creates a trustless exchange where the
@@ -116,7 +116,7 @@ export default function WhitepaperPage() {
               <P>
                 Intelligence is approaching zero marginal cost. As large language
                 models become commoditized, AI agents are emerging as autonomous
-                economic actors -- purchasing data, consuming APIs, paying for
+                economic actors - purchasing data, consuming APIs, paying for
                 compute, and transacting with other agents and services without
                 human intervention. This shift demands a payment infrastructure
                 fundamentally different from anything built for human commerce.
@@ -147,7 +147,7 @@ export default function WhitepaperPage() {
                 <C>
                   exact
                 </C>{" "}
-                scheme uses ERC-20 Permit2 signatures -- the agent signs an
+                scheme uses ERC-20 Permit2 signatures - the agent signs an
                 allowance off-chain, a facilitator broadcasts the transaction,
                 and the server delivers data. This is elegant in its simplicity
                 but fundamentally{" "}
@@ -158,8 +158,8 @@ export default function WhitepaperPage() {
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 Payproof addresses this gap. We use x402 as the transport layer
-                -- the 402 response, the payment headers, the client/server
-                negotiation -- but for the{" "}
+                - the 402 response, the payment headers, the client/server
+                negotiation - but for the{" "}
                 <C>
                   direct
                 </C>{" "}
@@ -207,7 +207,7 @@ export default function WhitepaperPage() {
                 <C>
                   Treasury
                 </C>{" "}
-                (dispute). State can only move forward -- there are no rollback
+                (dispute). State can only move forward - there are no rollback
                 transitions except the refund path from{" "}
                 <C>
                   Locked
@@ -419,8 +419,8 @@ export default function WhitepaperPage() {
                 <C>
                   confirmReceipt()
                 </C>
-                . If the agent fails to confirm -- whether due to a crash,
-                network failure, or deliberate non-confirmation -- funds are sent
+                . If the agent fails to confirm - whether due to a crash,
+                network failure, or deliberate non-confirmation - funds are sent
                 to the neutral treasury rather than back to the agent. The{" "}
                 <C>
                   dataDeadline
@@ -448,7 +448,7 @@ export default function WhitepaperPage() {
                       <td className="py-2 pr-4">
                         <C>lock()</C> called
                       </td>
-                      <td className="py-2">Agent -- can refund if merchant never responds</td>
+                      <td className="py-2">Agent - can refund if merchant never responds</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">
@@ -458,7 +458,7 @@ export default function WhitepaperPage() {
                       <td className="py-2 pr-4">
                         <C>postDataHash()</C> called
                       </td>
-                      <td className="py-2">Merchant -- if agent ghosts, treasury gets funds (not agent)</td>
+                      <td className="py-2">Merchant - if agent ghosts, treasury gets funds (not agent)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -568,7 +568,7 @@ export default function WhitepaperPage() {
               <P>
                 The central cryptographic innovation of Payproof is the dual use
                 of the escrow secret. In a standard atomic escrow, the secret is a
-                random value whose hash serves as a commitment -- the party who
+                random value whose hash serves as a commitment - the party who
                 knows the secret can unlock escrowed funds by revealing it
                 on-chain. Payproof extends this by using the same 32-byte
                 secret as the symmetric encryption key for the data being
@@ -588,7 +588,7 @@ export default function WhitepaperPage() {
                 <C>
                   claim(secret)
                 </C>{" "}
-                -- revealing the secret in a public on-chain event. The agent
+                - revealing the secret in a public on-chain event. The agent
                 reads this event and uses the secret to decrypt the data.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
@@ -609,7 +609,7 @@ export default function WhitepaperPage() {
                 All hash operations in Payproof use a universally supported
                 cryptographic hash function, deliberately chosen for cross-chain
                 compatibility rather than any chain-native alternative. The
-                chosen hash is available on every target blockchain -- including
+                chosen hash is available on every target blockchain - including
                 EVM chains, Solana, Cosmos, and Bitcoin. By using a
                 chain-agnostic hash, the same commitment can be verified on any
                 chain, enabling future cross-chain atomic swaps where an agent
@@ -624,7 +624,7 @@ export default function WhitepaperPage() {
                   <C>
                     hash(secret)
                   </C>{" "}
-                  -- the escrow commitment, verified on-chain during{" "}
+                  - the escrow commitment, verified on-chain during{" "}
                   <C>
                     claim()
                   </C>
@@ -634,7 +634,7 @@ export default function WhitepaperPage() {
                   <C>
                     hash(ciphertext_bytes)
                   </C>{" "}
-                  -- the merchant&apos;s commitment to the encrypted data
+                  - the merchant&apos;s commitment to the encrypted data
                 </li>
                 <li>
                   <span className="font-medium text-foreground">
@@ -644,7 +644,7 @@ export default function WhitepaperPage() {
                   <C>
                     hash(ciphertext_bytes)
                   </C>{" "}
-                  to confirm receipt -- must match{" "}
+                  to confirm receipt - must match{" "}
                   <C>
                     dataHash
                   </C>{" "}
@@ -739,7 +739,7 @@ export default function WhitepaperPage() {
                 <C>
                   receiptHash == dataHash
                 </C>{" "}
-                on-chain -- if the merchant posted a hash for different data than
+                on-chain - if the merchant posted a hash for different data than
                 what was delivered, the confirmation transaction reverts. This
                 binds the on-chain commitment to the actual bytes delivered to the
                 agent.
@@ -825,7 +825,7 @@ export default function WhitepaperPage() {
                   Agent incentive to confirm valid data:
                 </span>{" "}
                 If the agent receives valid data but refuses to confirm,
-                the funds go to treasury -- not back to the agent. Strategic
+                the funds go to treasury - not back to the agent. Strategic
                 non-confirmation yields no benefit to the agent: they lose the
                 payment amount and still cannot decrypt without the secret.
                 Rational agents always confirm valid data.
@@ -838,7 +838,7 @@ export default function WhitepaperPage() {
                 than in the cooperative outcome. The merchant who ghosts earns
                 nothing. The agent who refuses to confirm loses the payment. The
                 treasury mechanism ensures that in any dispute, neither party
-                captures the funds -- eliminating the economic incentive for
+                captures the funds - eliminating the economic incentive for
                 adversarial behavior entirely.
               </p>
 
@@ -847,7 +847,7 @@ export default function WhitepaperPage() {
               </H3>
               <P>
                 The treasury address is set at contract deployment and is
-                immutable -- it cannot be changed after deployment and has no
+                immutable - it cannot be changed after deployment and has no
                 admin functions. When a dispute is unresolvable (merchant posted
                 data but agent did not confirm), the{" "}
                 <C>
@@ -858,7 +858,7 @@ export default function WhitepaperPage() {
                 <C>
                   dataDeadline
                 </C>{" "}
-                expires -- it acts as a permissionless crank. The treasury serves
+                expires - it acts as a permissionless crank. The treasury serves
                 as a Schelling point: both parties know that defection leads to
                 neither party getting the funds, making cooperation the dominant
                 strategy in repeated games.
@@ -870,7 +870,7 @@ export default function WhitepaperPage() {
               <P>
                 The complete protocol flow comprises 14 steps across three
                 participants: the agent, the merchant, and the blockchain. In
-                practice, the SDK abstracts all 14 steps -- the agent developer
+                practice, the SDK abstracts all 14 steps - the agent developer
                 calls{" "}
                 <C>
                   fetch()
@@ -1018,7 +1018,7 @@ export default function WhitepaperPage() {
                 <C>
                   receiptHash == dataHash
                 </C>{" "}
-                -- if they do not match, the transaction reverts. On success, the
+                - if they do not match, the transaction reverts. On success, the
                 lock transitions to{" "}
                 <C>
                   Confirmed
@@ -1057,7 +1057,7 @@ export default function WhitepaperPage() {
               <P>
                 The protocol is designed so that every failure scenario has a
                 well-defined recovery path. No failure can result in permanent
-                loss of funds -- every lock eventually resolves to one of the
+                loss of funds - every lock eventually resolves to one of the
                 three terminal states.
               </P>
 
@@ -1079,7 +1079,7 @@ export default function WhitepaperPage() {
                 </C>{" "}
                 after the 300-second timelock expires, recovering the full escrow
                 amount. The merchant may have crashed, experienced a network
-                failure, or deliberately ghosted -- regardless, the agent&apos;s funds
+                failure, or deliberately ghosted - regardless, the agent&apos;s funds
                 are safe.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
@@ -1099,7 +1099,7 @@ export default function WhitepaperPage() {
                   sendToTreasury()
                 </C>{" "}
                 to move funds to the neutral treasury. The agent does not receive
-                a refund -- this prevents strategic non-confirmation.
+                a refund - this prevents strategic non-confirmation.
               </p>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 <span className="font-medium text-foreground">
@@ -1292,14 +1292,14 @@ export default function WhitepaperPage() {
                 The protocol is chain-agnostic by construction. The use of
                 a universally supported cryptographic hash (rather than
                 chain-native hash functions) means the same commitment can be
-                verified on any blockchain -- including EVM chains, Solana,
+                verified on any blockchain - including EVM chains, Solana,
                 Cosmos chains, Bitcoin, and others. The state machine, game
                 theory, and cryptographic construction are independent of the
                 execution environment.
               </P>
               <p className="font-sans text-base leading-relaxed text-foreground/80 mt-4">
                 The primary deployment target is Circle&apos;s Arc chain, chosen for
-                its USDC-native gas model. On Arc, agents only need USDC -- no
+                its USDC-native gas model. On Arc, agents only need USDC - no
                 volatile gas token is required. Combined with sub-second finality,
                 Arc makes micropayments practical: an agent can pay $0.001 for a
                 weather data point without the gas fee exceeding the payment
@@ -1350,14 +1350,14 @@ export default function WhitepaperPage() {
                   <C>
                     @payproof/contracts
                   </C>{" "}
-                  -- shared types, ABIs, chain configurations, and the
+                  - shared types, ABIs, chain configurations, and the
                   protocol state enum
                 </li>
                 <li>
                   <C>
                     @payproof/client
                   </C>{" "}
-                  -- agent-side SDK including x402 handling, EVM/Solana wallet
+                  - agent-side SDK including x402 handling, EVM/Solana wallet
                   management, escrow interaction, decryption, lock
                   tracking, and auto-refund sweeping
                 </li>
@@ -1365,7 +1365,7 @@ export default function WhitepaperPage() {
                   <C>
                     @payproof/server
                   </C>{" "}
-                  -- merchant-side SDK including lock verification, data
+                  - merchant-side SDK including lock verification, data
                   encryption, on-chain commitment, claim orchestration, secret
                   management, and Next.js middleware adapter
                 </li>
@@ -1411,7 +1411,7 @@ const server = createPayproofServer({
                 402 responses with payment requirements for unpaid requests, and
                 orchestrates the full encrypted flow (verify, encrypt,
                 postDataHash, return EncryptedPayload, claim) transparently. The
-                route handler itself simply returns plaintext data -- encryption
+                route handler itself simply returns plaintext data - encryption
                 and all on-chain operations are handled by the middleware.
               </P>
 
@@ -1468,7 +1468,7 @@ export async function GET() {
                 <C>
                   exact
                 </C>{" "}
-                scheme uses Permit2 signatures -- the agent signs an off-chain
+                scheme uses Permit2 signatures - the agent signs an off-chain
                 allowance, a trusted facilitator broadcasts the transaction, and
                 the server delivers data. Payproof supports the{" "}
                 <C>
@@ -1493,13 +1493,13 @@ export async function GET() {
                   <tbody className="font-sans text-foreground/80">
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Atomicity</td>
-                      <td className="py-2 pr-4">None -- pay then hope</td>
-                      <td className="py-2">Full -- secret links payment to decryption</td>
+                      <td className="py-2 pr-4">None - pay then hope</td>
+                      <td className="py-2">Full - secret links payment to decryption</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Trusted third party</td>
                       <td className="py-2 pr-4">Facilitator (x402.org)</td>
-                      <td className="py-2">None -- on-chain escrow</td>
+                      <td className="py-2">None - on-chain escrow</td>
                     </tr>
                     <tr className="border-b border-muted">
                       <td className="py-2 pr-4">Dispute resolution</td>
@@ -1542,7 +1542,7 @@ export async function GET() {
                 Payproof builds on Circle&apos;s infrastructure rather than competing
                 with it. USDC is the canonical payment token. Arc is the primary
                 deployment chain, chosen for its USDC-native gas model which
-                eliminates the need for a volatile gas token -- making
+                eliminates the need for a volatile gas token - making
                 micropayments practical. Circle provides excellent monetary
                 infrastructure (the asset, the chain, the settlement layer) but
                 no atomicity layer for data-for-payment. Payproof adds the
@@ -1554,7 +1554,7 @@ export async function GET() {
                 9.3 Payproof Extends x402
               </H3>
               <P>
-                Payproof does not replace x402 -- it extends it. The 402
+                Payproof does not replace x402 - it extends it. The 402
                 response format, the payment header negotiation, and the
                 client/server communication pattern all follow the x402 standard.
                 Merchants and agents already using x402 can adopt Payproof&apos;s{" "}
@@ -1563,7 +1563,7 @@ export async function GET() {
                 </C>{" "}
                 scheme incrementally, choosing trust-for-simplicity (exact) or
                 cryptography-for-guarantees (direct) on a per-transaction basis.
-                The SDK supports both schemes transparently -- a single server can
+                The SDK supports both schemes transparently - a single server can
                 offer both to different clients, and a single client can pay via
                 either depending on the merchant&apos;s requirements.
               </P>
