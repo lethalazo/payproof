@@ -28,7 +28,6 @@ import {
 
 import type { PreimageStore } from "./stores/preimage-store.js";
 import type { LedgerStore } from "./stores/ledger-store.js";
-import { isClientDisconnected } from "./context/request-context.js";
 
 // Inline base58 decode to avoid CJS require issues with bs58 in Next.js bundlers
 const BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -94,9 +93,16 @@ async function anchorDiscriminator(name: string): Promise<Buffer> {
 /** Minimum seconds remaining on timelock for server to safely complete the flow. */
 const MIN_TIMELOCK_SAFETY_MARGIN = 120;
 
+/** Duration after which claimedLocks entries are swept (30 minutes). */
+const CLAIMED_LOCK_TTL_MS = 30 * 60 * 1000;
+/** How often to sweep stale claimedLocks entries (5 minutes). */
+const CLAIMED_LOCK_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
+
 export class DirectTransferFacilitator {
   private config: DirectTransferFacilitatorConfig;
-  private claimedLocks = new Set<string>();
+  /** lockId → timestamp of when the claim was recorded. Periodically swept. */
+  private claimedLocks = new Map<string, number>();
+  private claimedLocksSweepTimer: ReturnType<typeof setInterval> | null = null;
   private arcPublicClient;
   private htlcSolanaProgramId: PublicKey;
   private solanaUsdcMint: PublicKey;
@@ -114,6 +120,16 @@ export class DirectTransferFacilitator {
     this.solanaUsdcMint = new PublicKey(
       config.solanaUsdcMint || "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
     );
+
+    // Periodic sweep of stale claimedLocks entries
+    this.claimedLocksSweepTimer = setInterval(() => {
+      const cutoff = Date.now() - CLAIMED_LOCK_TTL_MS;
+      for (const [lockId, ts] of this.claimedLocks) {
+        if (ts < cutoff) this.claimedLocks.delete(lockId);
+      }
+    }, CLAIMED_LOCK_SWEEP_INTERVAL_MS);
+    // Allow Node to exit without waiting for this timer
+    if (this.claimedLocksSweepTimer.unref) this.claimedLocksSweepTimer.unref();
   }
 
   private getSolanaConnection(): Connection {
@@ -231,6 +247,22 @@ export class DirectTransferFacilitator {
   }
 
   private async postDataHashArc(lockId: `0x${string}`, dataHash: `0x${string}`): Promise<string> {
+    // Re-check timelock margin before posting — time may have elapsed since verify()
+    const lock = await this.arcPublicClient.readContract({
+      address: this.config.htlcContractAddress,
+      abi: HTLC_ABI,
+      functionName: "getLock",
+      args: [lockId],
+    });
+    const lockData = lock as unknown as { timelock: bigint; state: number };
+    const now = BigInt(Math.floor(Date.now() / 1000));
+    const remaining = lockData.timelock - now;
+    if (remaining < BigInt(MIN_TIMELOCK_SAFETY_MARGIN)) {
+      throw new Error(
+        `postDataHash aborted: only ${remaining}s remaining on timelock, need ${MIN_TIMELOCK_SAFETY_MARGIN}s for agent to confirm`,
+      );
+    }
+
     const merchantClient = this.getMerchantWalletClient();
     const txHash = await merchantClient.writeContract({
       address: this.config.htlcContractAddress,
@@ -258,6 +290,19 @@ export class DirectTransferFacilitator {
       [Buffer.from("lock"), lockIdBytes],
       this.htlcSolanaProgramId,
     );
+
+    // Re-check timelock margin before posting — time may have elapsed since verify()
+    const accountInfo = await connection.getAccountInfo(lockPDA);
+    if (accountInfo && accountInfo.data.length >= 153) {
+      const timelock = Number(accountInfo.data.readBigInt64LE(144));
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = timelock - now;
+      if (remaining < MIN_TIMELOCK_SAFETY_MARGIN) {
+        throw new Error(
+          `postDataHash aborted: only ${remaining}s remaining on timelock, need ${MIN_TIMELOCK_SAFETY_MARGIN}s for agent to confirm`,
+        );
+      }
+    }
 
     const disc = await anchorDiscriminator("post_data_hash");
     const ixData = Buffer.alloc(8 + 32);
@@ -399,6 +444,20 @@ export class DirectTransferFacilitator {
       await new Promise((r) => setTimeout(r, pollIntervalMs));
     }
 
+    // Verify the lock actually reached Confirmed state before attempting claim.
+    // If the poll timed out, the lock may still be in DataPosted — claiming would revert and waste gas.
+    const finalLock = await this.arcPublicClient.readContract({
+      address: this.config.htlcContractAddress,
+      abi: HTLC_ABI,
+      functionName: "getLock",
+      args: [lockId],
+    });
+    const finalState = (finalLock as unknown as { state: number }).state;
+    if (finalState !== LockState.Confirmed) {
+      console.warn("[facilitator] Lock not in Confirmed state after polling (state=%d), skipping claim", finalState);
+      return;
+    }
+
     // Retrieve preimage and claim
     const preimage = passedPreimage ?? await this.config.preimageStore.getPreimage(hashlock);
     if (!preimage) {
@@ -408,7 +467,7 @@ export class DirectTransferFacilitator {
 
     // Optimistic locking: add BEFORE claim attempt to prevent concurrent duplicates (TOCTOU fix)
     if (this.claimedLocks.has(lockId)) return;
-    this.claimedLocks.add(lockId);
+    this.claimedLocks.set(lockId, Date.now());
 
     const preimageHex = `0x${preimage}` as `0x${string}`;
     const merchantClient = this.getMerchantWalletClient();
@@ -499,6 +558,19 @@ export class DirectTransferFacilitator {
       await new Promise((r) => setTimeout(r, pollIntervalMs));
     }
 
+    // Verify the lock actually reached Confirmed state before attempting claim.
+    // If the poll timed out, the lock may still be in DataPosted — claiming would revert and waste gas.
+    const finalAccountInfo = await connection.getAccountInfo(lockPDA);
+    if (!finalAccountInfo || finalAccountInfo.data.length < 153) {
+      console.warn("[facilitator] Solana lock account missing after polling, skipping claim");
+      return;
+    }
+    const finalState = finalAccountInfo.data[152];
+    if (finalState !== 3) { // 3 = Confirmed
+      console.warn("[facilitator] Solana lock not in Confirmed state after polling (state=%d), skipping claim", finalState);
+      return;
+    }
+
     const preimage = passedPreimage ?? await this.config.preimageStore.getPreimage(hashlock);
     if (!preimage) {
       console.error("[facilitator] No preimage found for Solana claim");
@@ -507,7 +579,7 @@ export class DirectTransferFacilitator {
 
     // Optimistic locking: add BEFORE claim attempt to prevent concurrent duplicates (TOCTOU fix)
     if (this.claimedLocks.has(lockIdHex)) return;
-    this.claimedLocks.add(lockIdHex);
+    this.claimedLocks.set(lockIdHex, Date.now());
 
     const preimageBytes = Buffer.from(preimage, "hex");
 
@@ -603,8 +675,6 @@ export class DirectTransferFacilitator {
       return;
     }
     const signature = claimSignature;
-
-    this.claimedLocks.add(lockIdHex);
 
     const txRecord: MerchantTransaction = {
       id: lockIdHex,

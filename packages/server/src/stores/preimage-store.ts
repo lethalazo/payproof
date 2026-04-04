@@ -16,13 +16,24 @@ interface SecretEntry {
   createdAt: number;
 }
 
-/** In-memory PreimageStore with configurable TTL. */
+/** In-memory PreimageStore with configurable TTL and periodic sweep. */
 export class MemoryPreimageStore implements PreimageStore {
   private secrets = new Map<string, SecretEntry>();
   private ttlMs: number;
+  private sweepTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(ttlMs = 30 * 60 * 1000) {
     this.ttlMs = ttlMs;
+
+    // Sweep expired entries every 5 minutes to prevent memory accumulation
+    this.sweepTimer = setInterval(() => {
+      const now = Date.now();
+      for (const [key, entry] of this.secrets) {
+        if (now - entry.createdAt > this.ttlMs) this.secrets.delete(key);
+      }
+    }, 5 * 60 * 1000);
+    // Allow Node to exit without waiting for this timer
+    if (this.sweepTimer.unref) this.sweepTimer.unref();
   }
 
   async generateHashlock(): Promise<{ preimage: string; hashlock: string }> {

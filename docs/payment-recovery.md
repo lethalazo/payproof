@@ -60,11 +60,12 @@ The HTLC contract provides cryptographic guarantees:
 - Treasury ensures no party profits from strategic non-cooperation
 - Preimage verification ensures the merchant can only claim with the real key
 
-### Layer 2: SDK Retry Logic
+### Layer 2: SDK Safety Checks & Retry Logic
 
 The client and server SDKs handle transient failures:
+- **Timelock margin**: `verify()` rejects locks with < 120s remaining; `postDataHash()` re-checks before submitting to prevent race conditions where time elapsed between verification and posting
 - **Gas estimation**: HTLC client estimates gas before submitting transactions
-- **Event polling**: `watchForClaim` polls with 3-second intervals for up to 4 minutes
+- **Event polling**: `watchForClaim` polls with 2-second intervals for up to 4 minutes
 - **Background claim polling**: `claimAfterConfirmation` polls with 3-second intervals for up to 3 minutes
 
 ### Layer 3: Client-Side LockStore

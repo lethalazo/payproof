@@ -154,11 +154,11 @@ async function handleDirectSchemePayment(
 
   const plaintextBytes = new Uint8Array(await dataResponse.arrayBuffer());
 
-  // Step 3: Get preimage
-  const preimage = await server.preimageStore.getPreimage(hashlock);
+  // Step 3: Consume preimage (atomic get-and-delete prevents double-use)
+  const preimage = await server.preimageStore.consumePreimage(hashlock);
   if (!preimage) {
     return NextResponse.json(
-      { error: "internal_error", message: "Preimage not found for hashlock" },
+      { error: "internal_error", message: "Preimage not found or already consumed for hashlock" },
       { status: 500 },
     );
   }

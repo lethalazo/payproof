@@ -229,7 +229,7 @@ The on-chain transaction to commit the encrypted data hash failed. Check:
 
 ### "Lock hashlock does not match expected"
 
-The x402 middleware's enhancement cache expired between the initial 402 response and the payment retry. The cache TTL is 60 seconds. This can happen if the client takes more than 60 seconds to create the HTLC lock. Retry — the next request gets a fresh hashlock.
+The preimage for the hashlock provided in the 402 response has expired or been consumed. The `PreimageStore` has a 30-minute TTL, and `consumePreimage()` deletes after first use. This can happen if the client reuses a stale 402 response. Retry — the next request gets a fresh hashlock.
 
 ### Agent gets 402 despite payment
 
@@ -237,7 +237,7 @@ Usually means the payment verification failed. Common causes:
 - Lock amount less than required (rounding issues)
 - Lock recipient doesn't match merchant address
 - Lock timelock already expired
-- Wrong hashlock (cache mismatch, see above)
+- Wrong hashlock (stale 402 response, see above)
 
 Check server logs for `[facilitator]` messages which include detailed verification results.
 
@@ -254,7 +254,6 @@ The prototype uses in-memory stores for simplicity. Production deployments repla
 | Preimage store | In-memory Map, 30-min TTL | Redis or database with TTL |
 | Merchant ledger | In-memory array | Database (PostgreSQL, etc.) |
 | Pending locks | In-memory Map | Database + on-chain indexing |
-| Enhancement cache | In-memory Map, 60s TTL | Redis with TTL |
-| Replay protection | In-memory Set | Database or distributed cache |
+| Claimed locks dedup | In-memory Map, 30-min TTL sweep | Database or distributed cache |
 
 The on-chain HTLC state is always persistent and serves as the ultimate source of truth.

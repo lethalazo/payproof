@@ -37,17 +37,17 @@ describe("MemoryPreimageStore", () => {
     expect(store.getPreimage(hashlock)).toBeNull();
   });
 
-  it("consumePreimage is non-destructive (alias of getPreimage)", async () => {
+  it("consumePreimage atomically retrieves and deletes the entry", async () => {
     const store = new MemoryPreimageStore();
     const { preimage, hashlock } = await store.generateHashlock();
 
     const consumed = store.consumePreimage(hashlock);
     expect(consumed).toBe(preimage);
 
-    // Entry is NOT deleted — consumePreimage is non-destructive to prevent
-    // race conditions when the server retries claim with the same hashlock
-    expect(store.getPreimage(hashlock)).toBe(preimage);
-    expect(store.consumePreimage(hashlock)).toBe(preimage);
+    // Entry IS deleted — consumePreimage prevents double-use of the preimage.
+    // The preimage is passed explicitly to claimAfterConfirmation after consumption.
+    expect(store.getPreimage(hashlock)).toBeNull();
+    expect(store.consumePreimage(hashlock)).toBeNull();
   });
 
   it("SHA-256(preimage) equals hashlock", async () => {

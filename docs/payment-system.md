@@ -109,7 +109,7 @@ The `createNextMiddleware` handler:
    - Hashlock matches server-generated hashlock
    - Timelock hasn't expired
 2. **Fetch data** — Passes request through to the Next.js route handler
-3. **Get preimage** — Retrieves from `PreimageStore` (doesn't consume yet)
+3. **Consume preimage** — Atomically retrieves and deletes from `PreimageStore` (prevents double-use)
 4. **Encrypt** — `AES-256-GCM(plaintext, key=preimage, nonce=random_12_bytes)`
 5. **Compute dataHash** — `SHA-256(ciphertext_bytes)`
 6. **Post dataHash** — `facilitator.postDataHash(lockId, dataHash, network)` — on-chain tx, waits for receipt
@@ -154,8 +154,8 @@ interface PreimageStore {
 - **TTL**: 30 minutes (MemoryPreimageStore default)
 - **Lifecycle**:
   1. `generateHashlock()` — called during 402 response generation
-  2. `getPreimage()` — called during encryption (doesn't consume)
-  3. `consumePreimage()` — called during `claimAfterConfirmation` (removes from store)
+  2. `consumePreimage()` — called during encryption in the middleware (atomic get-and-delete prevents double-use)
+  3. Preimage is passed explicitly to `claimAfterConfirmation()` since it was already consumed from the store
 
 ### Client Side (LockStore)
 
@@ -192,8 +192,8 @@ const client = new x402Client((_version, accepts) => {
 ## Replay Protection
 
 - **Lock-based**: Each `lockId` is a random `bytes32` — used exactly once
-- **Set-based dedup**: The facilitator's `claimedLocks` Set prevents double-claiming
-- **Enhancement cache**: Server-side cache (60s TTL) prevents generating duplicate hashlocks for the same route/price combination
+- **Map-based dedup**: The facilitator's `claimedLocks` Map (lockId → timestamp) prevents double-claiming, with periodic sweep of entries older than 30 minutes
+- **Preimage TTL**: Server-side `PreimageStore` entries expire after 30 minutes; `consumePreimage()` atomically deletes on first use
 
 ## Pricing
 

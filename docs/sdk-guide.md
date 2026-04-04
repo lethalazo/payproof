@@ -188,17 +188,16 @@ interface PayproofClientConfig {
 
 ### Pre-Built Agent Tools
 
-The reference app includes 8 tools for AI agent integration:
+The reference app includes 6 tools for AI agent integration (some conditional on enabled chains):
 
-| Tool | Purpose |
-|------|---------|
-| `check_wallet_balance` | Query USDC balance across all chains |
-| `list_available_apis` | Browse marketplace catalog with prices |
-| `fetch_paid_data` | Purchase data from a paywalled endpoint |
-| `check_arc_balance` | Arc-specific balance check |
-| `transfer_usdc_arc` | Direct USDC transfer on Arc |
-| `check_pending_payments` | Inspect on-chain status of all HTLC locks |
-| `refund_expired_lock` | Recover funds from expired locks |
+| Tool | Purpose | Condition |
+|------|---------|-----------|
+| `check_wallet_balance` | Query USDC balance across all enabled chains | Always |
+| `list_available_apis` | Browse marketplace catalog with prices | Always |
+| `fetch_paid_data` | Purchase data from a paywalled endpoint | Always |
+| `check_pending_payments` | Inspect on-chain status of all HTLC locks | Always |
+| `refund_expired_lock` | Recover funds from expired locks | Direct (HTLC) chains enabled |
+| `transfer_usdc_arc` | Direct USDC transfer on Arc | Arc enabled |
 
 ### Integration with Function-Calling
 
@@ -244,7 +243,7 @@ Prefer the chain with the most funds.`;
 | `not_locked` | Lock state mismatch | Lock was already claimed/refunded/treasury |
 | `wrong_recipient` | Lock recipient doesn't match merchant | Client locked to wrong address |
 | `insufficient_amount` | Lock amount < required | Rounding issue or price changed |
-| `wrong_hashlock` | Hashlock mismatch | Enhancement cache expired (60s TTL) — retry |
+| `wrong_hashlock` | Hashlock mismatch | Preimage TTL expired or stale 402 response — retry from step 1 |
 | `expired` | Timelock already passed | Agent took too long — lock is refundable |
 | `Preimage not found` | Server preimage expired | PreimageStore TTL (30 min) exceeded |
 | `post_data_hash_failed` | On-chain tx reverted | Check gas, contract state, network status |

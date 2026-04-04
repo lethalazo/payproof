@@ -346,16 +346,6 @@ Purchase and fetch data from a paywalled API. Handles the full atomic payment fl
 
 ---
 
-### `check_arc_balance`
-
-Check USDC balance on Arc Testnet specifically.
-
-**Input**: None
-
-**Output**: `{ chain, address, usdc_balance, network }`
-
----
-
 ### `transfer_usdc_arc`
 
 Direct USDC transfer on Arc Testnet.
